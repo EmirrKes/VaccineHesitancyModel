@@ -16,24 +16,7 @@ namespace VaccineHesitancyModel
             Console.WriteLine("\"p\" followed by the number of generations to advance the simulation, for example \"p 100\".\n" +
                     "\"e\" to exit application\n");
 
-            List<Province> provinces = new List<Province>
-            {
-                    // !!! INHABITANTS NEEDS TO BE UPDATED !!! // Joris ;)
-
-                new Province(id: 0, name: "Limburg", inhabitants: 0),
-                new Province(id: 1, name: "Zeeland", inhabitants: 0),
-                new Province(id: 2, name: "North Brabant", inhabitants: 0),
-                new Province(id: 3, name: "South Holland", inhabitants: 0),
-                new Province(id: 4, name: "Utrecht", inhabitants: 0),
-                new Province(id: 5, name: "Gelderland", inhabitants: 0),
-                new Province(id: 6, name: "North Holland", inhabitants: 0),
-                new Province(id: 7, name: "Flevoland", inhabitants: 0),
-                new Province(id: 8, name: "Overijssel", inhabitants: 0),
-                new Province(id: 9, name: "Friesland", inhabitants: 0),
-                new Province(id: 10, name: "Drenthe", inhabitants: 0),
-                new Province(id: 11, name: "Groningen", inhabitants: 0)
-            };
-
+            List<Province> provinces = ProvinceInit.CreateProvinces();
 
             Simulation simulation = new Simulation(provinces);
             simulation.PrintStatus();

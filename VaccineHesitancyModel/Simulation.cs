@@ -19,10 +19,13 @@ namespace VaccineHesitancyModel
 
         public void Progress(int generations)
         {
+            double baseVaccinations = 1000;
+            int deniedvaccinations = 0;
+
             for (int i = 0; i < generations; i++)
             {
-                foreach (Province province in provinces)              
-                    province.Update();
+                foreach (Province province in provinces)
+                    province.Update((double)province.inhabitants / TotalInhabitants() * baseVaccinations); 
 
                 generation++;
                 PrintStatus();
@@ -37,11 +40,35 @@ namespace VaccineHesitancyModel
 
             return count;
         }
-        public int TotalInfected()
+        public double TotalInfected()
         {
-            int count = 0;
+            double count = 0;
             foreach (Province province in provinces)
                 count += province.infected;
+
+            return count;
+        }
+        public double TotalRecovered()
+        {
+            double count = 0;
+            foreach (Province province in provinces)
+                count += province.recovered;
+
+            return count;
+        }
+        public double TotalSusceptible()
+        {
+            double count = 0;
+            foreach (Province province in provinces)
+                count += province.susceptible;
+
+            return count;
+        }
+        public double TotalVaccinated()
+        {
+            double count = 0;
+            foreach (Province province in provinces)
+                count += province.vaccinated;
 
             return count;
         }
@@ -50,8 +77,11 @@ namespace VaccineHesitancyModel
         {
             string status = 
                 "generation: " + generation + ",\n" +
-                "inhabitants: " + TotalInfected().ToString() + ",\n" +
+                "inhabitants: " + TotalInhabitants().ToString() + ",\n" +
                 "infected: " + TotalInfected().ToString() + ",\n" +
+                "recovered: " + TotalRecovered().ToString() + ",\n" +
+                "susceptible: " + TotalSusceptible().ToString() + ",\n" +
+                "vaccinated: " + TotalVaccinated().ToString() + ",\n" +
                 '\n'
                 ;
 
