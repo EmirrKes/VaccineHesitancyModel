@@ -16,6 +16,7 @@ namespace VaccineHesitancyModel
         public double infected = 0;
         public double recovered = 0;
         public double vaccinated = 0;
+        public int commuters = 0;
 
         List<(Province, int)> neighbours = new List<(Province,int)>(); //province and incoming commuters
 
@@ -30,6 +31,7 @@ namespace VaccineHesitancyModel
         public void AddNeighbour(Province neighbour, int commuters)
         {
             neighbours.Add((neighbour, commuters));
+            neighbour.commuters += commuters;
             //neighbour.neighbours.Add(this);
         }
 
@@ -38,6 +40,7 @@ namespace VaccineHesitancyModel
             foreach ((Province neighbour, int commuters) all in neighbours)
             {
                 neighbours.Add(all);
+                all.neighbour.commuters += commuters;
                 //neighbour.neighbours.Add(this);
             }
         }
@@ -65,11 +68,28 @@ namespace VaccineHesitancyModel
             // TODO Joris //
             // ---------- //
 
+            Dictionary<string, double> provinceData = GetInhabitantProbabilities();
+            double combined_infected = infected - commuters * provinceData["infected"];
+            double combined_susceptible = susceptible - commuters * provinceData["susceptible"];
+            double combined_recovered = recovered - commuters * provinceData["recovered"];
+            double combined_vaccinated = vaccinated - commuters * provinceData["vaccinated"];
+            double total_commuters = 0;
 
-            double newInfected = (0.43 * susceptible * infected / inhabitants);
-            double newRecovered = (0.2 * infected);
+            foreach ((Province, int) neighbour_data in neighbours)
+            {
+                Dictionary<string, double> dict = neighbour_data.Item1.GetInhabitantProbabilities();
+                combined_infected += neighbour_data.Item2 * dict["infected"];
+                combined_susceptible += neighbour_data.Item2 * dict["susceptible"];
+                combined_recovered += neighbour_data.Item2 * dict["recovered"];
+                combined_vaccinated += neighbour_data.Item2 * dict["vaccinated"];
+                total_commuters += neighbour_data.Item2;
+            }
 
-            susceptible -= newInfected;
+
+            double newInfected = Math.Floor(0.43 * combined_susceptible * combined_infected / (inhabitants - commuters + total_commuters));
+            double newRecovered = Math.Floor(0.2 * combined_infected);
+
+            susceptible -= newInfected; // * total_commuters / (inhabitants - commuters)
             infected += newInfected - newRecovered;
             recovered += newRecovered;
 
@@ -78,6 +98,16 @@ namespace VaccineHesitancyModel
                 vaccinated += vaccinations;
                 susceptible -= vaccinations;
             }
+        }
+
+        public Dictionary<string, double> GetInhabitantProbabilities()
+        {
+            Dictionary<string, double> dict = new Dictionary<string, double>();
+            dict.Add("susceptible", susceptible / inhabitants);
+            dict.Add("recovered", recovered / inhabitants);
+            dict.Add("infected", infected / inhabitants);
+            dict.Add("vaccinated", vaccinated / inhabitants);
+            return dict;
         }
     }
 
