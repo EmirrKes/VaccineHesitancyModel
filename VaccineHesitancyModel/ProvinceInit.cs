@@ -171,7 +171,7 @@ namespace VaccineHesitancyModel
 
             NorthHolland.infected = 10;
 
-            return new List<Province> { Groningen, Friesland, Drenthe, Overijssel, Gelderland, Utrecht, NorthHolland, SouthHolland, Zeeland, NorthBrabant, Limburg };
+            return new List<Province> { Groningen, Friesland, Drenthe, Overijssel, Gelderland, Utrecht, NorthHolland, SouthHolland, Zeeland, NorthBrabant, Limburg, Flevoland };
         }
     }
 }
