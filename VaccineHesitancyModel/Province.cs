@@ -83,8 +83,8 @@ namespace VaccineHesitancyModel
             }
 
 
-            double newInfected = Math.Floor(0.43 * combined_susceptible * combined_infected / (inhabitants - commuters + total_commuters));
-            double newRecovered = Math.Floor(0.2 * combined_infected);
+            double newInfected = 0.43 * combined_susceptible * combined_infected / (inhabitants - commuters + total_commuters);
+            double newRecovered = (0.2 * combined_infected);
 
             double inhabitantsPercentage = 1 - (total_commuters / (inhabitants - commuters + total_commuters));
             double CommutersPercentage_divided = (1 - inhabitantsPercentage) / neighbours.Count();
@@ -108,6 +108,8 @@ namespace VaccineHesitancyModel
             return dict;
         }
     }
+
+
 
     // ---------------------------- //
     // Might not use "Person" class //
