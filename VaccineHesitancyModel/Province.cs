@@ -18,7 +18,7 @@ namespace VaccineHesitancyModel
         public double vaccinated = 0;
         public int commuters = 0;
 
-        List<(Province, int)> neighbours = new List<(Province,int)>(); //province and incoming commuters
+        public List<(Province, int)> neighbours = new List<(Province,int)>(); //province and incoming commuters
 
         public Province(int id, string name, int inhabitants)
         {
@@ -62,11 +62,8 @@ namespace VaccineHesitancyModel
             Console.WriteLine(status);
         }
 
-        public void Update(double vaccinations)
+        public (double, double, double, double) Update(double vaccinations)
         {
-            // ---------- //
-            // TODO Joris //
-            // ---------- //
 
             Dictionary<string, double> provinceData = GetInhabitantProbabilities();
             double combined_infected = infected - commuters * provinceData["infected"];
@@ -89,15 +86,16 @@ namespace VaccineHesitancyModel
             double newInfected = Math.Floor(0.43 * combined_susceptible * combined_infected / (inhabitants - commuters + total_commuters));
             double newRecovered = Math.Floor(0.2 * combined_infected);
 
-            susceptible -= newInfected; // * total_commuters / (inhabitants - commuters)
-            infected += newInfected - newRecovered;
-            recovered += newRecovered;
+            double inhabitantsPercentage = 1 - (total_commuters / (inhabitants - commuters + total_commuters));
+            double CommutersPercentage_divided = (1 - inhabitantsPercentage) / neighbours.Count();
 
-            if (susceptible > vaccinations)
-            {
-                vaccinated += vaccinations;
-                susceptible -= vaccinations;
-            }
+            susceptible -= newInfected * inhabitantsPercentage;
+            infected += newInfected * inhabitantsPercentage - newRecovered * inhabitantsPercentage;
+            recovered += newRecovered * inhabitantsPercentage;
+
+
+
+            return (newInfected, newRecovered, CommutersPercentage_divided, total_commuters);
         }
 
         public Dictionary<string, double> GetInhabitantProbabilities()
