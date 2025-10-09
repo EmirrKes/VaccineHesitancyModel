@@ -28,7 +28,7 @@ namespace VaccineHesitancyModel
                 foreach (Province province in provinces)
                 {
                     // !!! Vaccinations need to be added + correct split of commuted/not commuted for graphs
-
+                    double averageVaccineHesitancy = 0.00;
 
                     //At home
                     Update(province, province.nativeWorkers, province.outgoingCommuters.Select(e => e.Item1).ToList(), baseVaccinations);
@@ -41,6 +41,17 @@ namespace VaccineHesitancyModel
                             incoming.Add(province2.outgoingCommuters.Find(e => e.Item2 == province));
                     }
                     Update(province, province.nativeWorkers, incoming.Select(e => e.Item1).ToList(), baseVaccinations);
+
+                    if (province.nativeWorkers.susceptible > baseVaccinations * (1 - averageVaccineHesitancy))
+                    {
+                        province.nativeWorkers.susceptible -= baseVaccinations * (1 - averageVaccineHesitancy);
+                        province.nativeWorkers.vaccinated += baseVaccinations * (1 - averageVaccineHesitancy);
+                    }
+                    else
+                    {
+                        province.nativeWorkers.vaccinated += province.nativeWorkers.susceptible;
+                        province.nativeWorkers.susceptible -= province.nativeWorkers.susceptible;                     
+                    }
                 }
 
                 generation++;
