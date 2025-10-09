@@ -1,4 +1,6 @@
 ﻿using System;
+
+
 using System.CodeDom.Compiler;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,75 +13,76 @@ namespace VaccineHesitancyModel
     {
         public int id;
         public string name;
-        public int inhabitants;
-        public double susceptible;
-        public double infected = 0;
-        public double recovered = 0;
-        public double vaccinated = 0;
+        public int totalInhabitants; //Calculated at initialisation
 
-        List<(Province, int)> neighbours = new List<(Province,int)>(); //province and incoming commuters
+        public PopulationCluster nativeWorkers; //People only work is same province
+        public List<(PopulationCluster, Province)> outgoingCommuters = []; //commuters from THIS province and its outgoing province
 
-        public Province(int id, string name, int inhabitants)
+        public Province(int id, string name, PopulationCluster native)
         {
             this.id = id;
             this.name = name;
-            this.inhabitants = inhabitants;
-            susceptible = inhabitants;
+            nativeWorkers = native;
+            this.totalInhabitants = (int)nativeWorkers.total; //commuters added later on
         }
 
-        public void AddNeighbour(Province neighbour, int commuters)
+        public void AddCommuters(PopulationCluster pop, Province prov)
         {
-            neighbours.Add((neighbour, commuters));
-            //neighbour.neighbours.Add(this);
+            outgoingCommuters.Add((pop,prov));
+            totalInhabitants += (int)pop.total;
         }
 
-        public void AddNeighbours(List<(Province, int)> neighbours)
+        //Use native workers + commuters present at the moment
+        public double TotalPresent(List<PopulationCluster> present)
         {
-            foreach ((Province neighbour, int commuters) all in neighbours)
-            {
-                neighbours.Add(all);
-                //neighbour.neighbours.Add(this);
-            }
+            return nativeWorkers.susceptible + present.Sum(e => e.total);
         }
+        public double TotalSusceptible(List<PopulationCluster> present)
+        {
+            return nativeWorkers.susceptible + present.Sum(e => e.susceptible);
+        }
+        public double TotalInfected(List<PopulationCluster> present)
+        {
+            return nativeWorkers.infected + present.Sum(e => e.infected);
+        }
+        public double TotalRecovered(List<PopulationCluster> present)
+        {
+            return nativeWorkers.recovered + present.Sum(e => e.recovered);
+        }
+        public double TotalVaccinated(List<PopulationCluster> present)
+        {
+            return nativeWorkers.vaccinated + present.Sum(e => e.vaccinated);
+        }
+
+
 
         public bool IsInfected()
         {
-            return infected > 0;
+            return TotalInfected(outgoingCommuters.Select(e => e.Item1).ToList()) > 0;
         }
 
         public void PrintStatus()
         {
             string status =
-                "inhabitants: " + inhabitants + '\n' +
-                "susceptible: " + susceptible + "\n" +
-                "infected: " + infected + "\n" +
-                "recovered: " + recovered + "\n" +
-                "vaccinated: " + vaccinated;
+                "inhabitants: " + totalInhabitants + '\n' +
+                "susceptible: " + TotalSusceptible(outgoingCommuters.Select(e => e.Item1).ToList()) + "\n" +
+                "infected: " + TotalInfected(outgoingCommuters.Select(e => e.Item1).ToList()) + "\n" +
+                "recovered: " + TotalRecovered(outgoingCommuters.Select(e => e.Item1).ToList()) + "\n" +
+                "vaccinated: " + TotalVaccinated(outgoingCommuters.Select(e => e.Item1).ToList());
 
             Console.WriteLine(status);
         }
 
-        public void Update(double vaccinations)
-        {
-            // ---------- //
-            // TODO Joris //
-            // ---------- //
-
-
-            double newInfected = (0.43 * susceptible * infected / inhabitants);
-            double newRecovered = (0.2 * infected);
-
-            susceptible -= newInfected;
-            infected += newInfected - newRecovered;
-            recovered += newRecovered;
-
-            if (susceptible > vaccinations)
-            {
-                vaccinated += vaccinations;
-                susceptible -= vaccinations;
-            }
-        }
     }
+
+
+
+
+
+
+
+
+
 
     // ---------------------------- //
     // Might not use "Person" class //

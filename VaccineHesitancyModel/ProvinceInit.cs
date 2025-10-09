@@ -11,165 +11,179 @@ namespace VaccineHesitancyModel
 
         public static List<Province> CreateProvinces()
         {
-            //niet echt inwoners aantal, omdat van een deel niet bekend is waar ze werken
-            Province Limburg = new Province(id: 11, name: "Limburg", inhabitants: 506000);
-            Province Zeeland = new Province(id: 11, name: "Zeeland", inhabitants: 173200);
-            Province NorthBrabant = new Province(id: 11, name: "NorthBrabant", inhabitants: 1277200);
-            Province SouthHolland = new Province(id: 11, name: "SouthHolland", inhabitants: 1758200);
-            Province Utrecht = new Province(id: 11, name: "Utrecht", inhabitants: 680800);
-            Province Gelderland = new Province(id: 11, name: "Gelderland", inhabitants: 1021500);
-            Province NorthHolland = new Province(id: 11, name: "NorthHolland", inhabitants: 1379400);
-            Province Flevoland = new Province(id: 11, name: "Flevoland", inhabitants: 214200);
-            Province Overijssel = new Province(id: 11, name: "Overijssel", inhabitants: 581500);
-            Province Friesland = new Province(id: 11, name: "Friesland", inhabitants: 301000);
-            Province Drenthe = new Province(id: 11, name: "Drenthe", inhabitants: 227200);
-            Province Groningen = new Province(id: 11, name: "Groningen", inhabitants: 273800);
+            //Totaal inwoner aantal bestaat enkel uit werkende mensen
+            Province Limburg = new Province(id: 0, name: "Limburg", new PopulationCluster(434400,0,0,0));
+            Province Zeeland = new Province(id: 1, name: "Zeeland", new PopulationCluster(144700, 0, 0, 0));
+            Province NorthBrabant = new Province(id: 2, name: "NorthBrabant", new PopulationCluster(1102700, 0, 0, 0));
+            Province SouthHolland = new Province(id: 3, name: "SouthHolland", new PopulationCluster(1511600, 0, 0, 0));
+            Province Utrecht = new Province(id: 4, name: "Utrecht", new PopulationCluster(486300, 0, 0, 0));
+            Province Gelderland = new Province(id: 5, name: "Gelderland", new PopulationCluster(779500, 0, 0, 0));
+            Province NorthHolland = new Province(id: 6, name: "NorthHolland", new PopulationCluster(1210400, 0, 0, 0));
+            Province Flevoland = new Province(id: 7, name: "Flevoland", new PopulationCluster(112400, 0, 0, 0));
+            Province Overijssel = new Province(id: 8, name: "Overijssel", new PopulationCluster(475300, 0, 0, 0));
+            Province Friesland = new Province(id: 9, name: "Friesland", new PopulationCluster(247500, 0, 0, 0));
+            Province Drenthe = new Province(id: 10, name: "Drenthe", new PopulationCluster(149700, 0, 0, 0));
+            Province Groningen = new Province(id: 11, name: "Groningen", new PopulationCluster(217200, 0, 0, 0));
 
-            Groningen.AddNeighbour(Friesland, 11600);
-            Groningen.AddNeighbour(Drenthe, 25600);
-            Groningen.AddNeighbour(Overijssel, 3800);
-            Groningen.AddNeighbour(Flevoland, 1000);
-            Groningen.AddNeighbour(Gelderland, 2200);
-            Groningen.AddNeighbour(Utrecht, 3100);
-            Groningen.AddNeighbour(NorthHolland, 5100);
-            Groningen.AddNeighbour(SouthHolland, 2600);
-            Groningen.AddNeighbour(Zeeland, 100);
-            Groningen.AddNeighbour(NorthBrabant, 1300);
-            Groningen.AddNeighbour(Limburg, 200);
+            // Groningen
+            Groningen.AddCommuters(new PopulationCluster(11600,0,0,0), Friesland);
+            Groningen.AddCommuters(new PopulationCluster(25600, 0, 0, 0), Drenthe);
+            Groningen.AddCommuters(new PopulationCluster(3800, 0, 0, 0), Overijssel);
+            Groningen.AddCommuters(new PopulationCluster(1000, 0, 0, 0), Flevoland);
+            Groningen.AddCommuters(new PopulationCluster(2200, 0, 0, 0), Gelderland);
+            Groningen.AddCommuters(new PopulationCluster(3100, 0, 0, 0), Utrecht);
+            Groningen.AddCommuters(new PopulationCluster(5100, 0, 0, 0), NorthHolland);
+            Groningen.AddCommuters(new PopulationCluster(2600, 0, 0, 0), SouthHolland);
+            Groningen.AddCommuters(new PopulationCluster(100, 0, 0, 0), Zeeland);
+            Groningen.AddCommuters(new PopulationCluster(1300, 0, 0, 0), NorthBrabant);
+            Groningen.AddCommuters(new PopulationCluster(200, 0, 0, 0), Limburg);
 
-            Friesland.AddNeighbour(Groningen, 13300);
-            Friesland.AddNeighbour(Drenthe, 8000);
-            Friesland.AddNeighbour(Overijssel, 5800);
-            Friesland.AddNeighbour(Flevoland, 4400);
-            Friesland.AddNeighbour(Gelderland, 2800);
-            Friesland.AddNeighbour(Utrecht, 3400);
-            Friesland.AddNeighbour(NorthHolland, 9900);
-            Friesland.AddNeighbour(SouthHolland, 3600);
-            Friesland.AddNeighbour(Zeeland, 100);
-            Friesland.AddNeighbour(NorthBrabant, 2000);
-            Friesland.AddNeighbour(Limburg, 200);
 
-            Drenthe.AddNeighbour(Groningen, 34000);
-            Drenthe.AddNeighbour(Friesland, 6300);
-            Drenthe.AddNeighbour(Overijssel, 21100);
-            Drenthe.AddNeighbour(Flevoland, 1400);
-            Drenthe.AddNeighbour(Gelderland, 3700);
-            Drenthe.AddNeighbour(Utrecht, 3000);
-            Drenthe.AddNeighbour(NorthHolland, 3500);
-            Drenthe.AddNeighbour(SouthHolland, 2600);
-            Drenthe.AddNeighbour(Zeeland, 0);
-            Drenthe.AddNeighbour(NorthBrabant, 1700);
-            Drenthe.AddNeighbour(Limburg, 200);
+            // Friesland
+            Friesland.AddCommuters(new PopulationCluster(13300, 0, 0, 0), Groningen);
+            Friesland.AddCommuters(new PopulationCluster(8000, 0, 0, 0), Drenthe);
+            Friesland.AddCommuters(new PopulationCluster(5800, 0, 0, 0), Overijssel);
+            Friesland.AddCommuters(new PopulationCluster(4400, 0, 0, 0), Flevoland);
+            Friesland.AddCommuters(new PopulationCluster(2800, 0, 0, 0), Gelderland);
+            Friesland.AddCommuters(new PopulationCluster(3400, 0, 0, 0), Utrecht);
+            Friesland.AddCommuters(new PopulationCluster(9900, 0, 0, 0), NorthHolland);
+            Friesland.AddCommuters(new PopulationCluster(3600, 0, 0, 0), SouthHolland);
+            Friesland.AddCommuters(new PopulationCluster(100, 0, 0, 0), Zeeland);
+            Friesland.AddCommuters(new PopulationCluster(2000, 0, 0, 0), NorthBrabant);
+            Friesland.AddCommuters(new PopulationCluster(200, 0, 0, 0), Limburg);
 
-            Overijssel.AddNeighbour(Groningen, 2300);
-            Overijssel.AddNeighbour(Friesland, 3900);
-            Overijssel.AddNeighbour(Drenthe, 14500);
-            Overijssel.AddNeighbour(Flevoland, 8500);
-            Overijssel.AddNeighbour(Gelderland, 47000);
-            Overijssel.AddNeighbour(Utrecht, 10700);
-            Overijssel.AddNeighbour(NorthHolland, 8300);
-            Overijssel.AddNeighbour(SouthHolland, 5400);
-            Overijssel.AddNeighbour(Zeeland, 100);
-            Overijssel.AddNeighbour(NorthBrabant, 4700);
-            Overijssel.AddNeighbour(Limburg, 800);
+            // Drenthe
+            Drenthe.AddCommuters(new PopulationCluster(34000, 0, 0, 0), Groningen);
+            Drenthe.AddCommuters(new PopulationCluster(6300, 0, 0, 0), Friesland);
+            Drenthe.AddCommuters(new PopulationCluster(21100, 0, 0, 0), Overijssel);
+            Drenthe.AddCommuters(new PopulationCluster(1400, 0, 0, 0), Flevoland);
+            Drenthe.AddCommuters(new PopulationCluster(3700, 0, 0, 0), Gelderland);
+            Drenthe.AddCommuters(new PopulationCluster(3000, 0, 0, 0), Utrecht);
+            Drenthe.AddCommuters(new PopulationCluster(3500, 0, 0, 0), NorthHolland);
+            Drenthe.AddCommuters(new PopulationCluster(2600, 0, 0, 0), SouthHolland);
+            Drenthe.AddCommuters(new PopulationCluster(0, 0, 0, 0), Zeeland);
+            Drenthe.AddCommuters(new PopulationCluster(1700, 0, 0, 0), NorthBrabant);
+            Drenthe.AddCommuters(new PopulationCluster(200, 0, 0, 0), Limburg);
 
-            Flevoland.AddNeighbour(Groningen, 400);
-            Flevoland.AddNeighbour(Friesland, 1900);
-            Flevoland.AddNeighbour(Drenthe, 800);
-            Flevoland.AddNeighbour(Overijssel, 7600);
-            Flevoland.AddNeighbour(Gelderland, 11400);
-            Flevoland.AddNeighbour(Utrecht, 15200);
-            Flevoland.AddNeighbour(NorthHolland, 57000);
-            Flevoland.AddNeighbour(SouthHolland, 4900);
-            Flevoland.AddNeighbour(Zeeland, 100);
-            Flevoland.AddNeighbour(NorthBrabant, 2200);
-            Flevoland.AddNeighbour(Limburg, 300);
+            // Overijssel
+            Overijssel.AddCommuters(new PopulationCluster(2300, 0, 0, 0), Groningen);
+            Overijssel.AddCommuters(new PopulationCluster(3900, 0, 0, 0), Friesland);
+            Overijssel.AddCommuters(new PopulationCluster(14500, 0, 0, 0), Drenthe);
+            Overijssel.AddCommuters(new PopulationCluster(8500, 0, 0, 0), Flevoland);
+            Overijssel.AddCommuters(new PopulationCluster(47000, 0, 0, 0), Gelderland);
+            Overijssel.AddCommuters(new PopulationCluster(10700, 0, 0, 0), Utrecht);
+            Overijssel.AddCommuters(new PopulationCluster(8300, 0, 0, 0), NorthHolland);
+            Overijssel.AddCommuters(new PopulationCluster(5400, 0, 0, 0), SouthHolland);
+            Overijssel.AddCommuters(new PopulationCluster(100, 0, 0, 0), Zeeland);
+            Overijssel.AddCommuters(new PopulationCluster(4700, 0, 0, 0), NorthBrabant);
+            Overijssel.AddCommuters(new PopulationCluster(800, 0, 0, 0), Limburg);
 
-            Gelderland.AddNeighbour(Groningen, 1100);
-            Gelderland.AddNeighbour(Friesland, 1500);
-            Gelderland.AddNeighbour(Drenthe, 2500);
-            Gelderland.AddNeighbour(Overijssel, 45100);
-            Gelderland.AddNeighbour(Flevoland, 8400);
-            Gelderland.AddNeighbour(Utrecht, 88800);
-            Gelderland.AddNeighbour(NorthHolland, 24600);
-            Gelderland.AddNeighbour(SouthHolland, 20000);
-            Gelderland.AddNeighbour(Zeeland, 400);
-            Gelderland.AddNeighbour(NorthBrabant, 43000);
-            Gelderland.AddNeighbour(Limburg, 6600);
+            // Flevoland
+            Flevoland.AddCommuters(new PopulationCluster(400, 0, 0, 0), Groningen);
+            Flevoland.AddCommuters(new PopulationCluster(1900, 0, 0, 0), Friesland);
+            Flevoland.AddCommuters(new PopulationCluster(800, 0, 0, 0), Drenthe);
+            Flevoland.AddCommuters(new PopulationCluster(7600, 0, 0, 0), Overijssel);
+            Flevoland.AddCommuters(new PopulationCluster(11400, 0, 0, 0), Gelderland);
+            Flevoland.AddCommuters(new PopulationCluster(15200, 0, 0, 0), Utrecht);
+            Flevoland.AddCommuters(new PopulationCluster(57000, 0, 0, 0), NorthHolland);
+            Flevoland.AddCommuters(new PopulationCluster(4900, 0, 0, 0), SouthHolland);
+            Flevoland.AddCommuters(new PopulationCluster(100, 0, 0, 0), Zeeland);
+            Flevoland.AddCommuters(new PopulationCluster(2200, 0, 0, 0), NorthBrabant);
+            Flevoland.AddCommuters(new PopulationCluster(300, 0, 0, 0), Limburg);
 
-            Utrecht.AddNeighbour(Groningen, 900);
-            Utrecht.AddNeighbour(Friesland, 700);
-            Utrecht.AddNeighbour(Drenthe, 900);
-            Utrecht.AddNeighbour(Overijssel, 3700);
-            Utrecht.AddNeighbour(Flevoland, 5600);
-            Utrecht.AddNeighbour(Gelderland, 44300);
-            Utrecht.AddNeighbour(NorthHolland, 84700);
-            Utrecht.AddNeighbour(SouthHolland, 38600);
-            Utrecht.AddNeighbour(Zeeland, 300);
-            Utrecht.AddNeighbour(NorthBrabant, 13300);
-            Utrecht.AddNeighbour(Limburg, 1500);
+            // Gelderland
+            Gelderland.AddCommuters(new PopulationCluster(1100, 0, 0, 0), Groningen);
+            Gelderland.AddCommuters(new PopulationCluster(1500, 0, 0, 0), Friesland);
+            Gelderland.AddCommuters(new PopulationCluster(2500, 0, 0, 0), Drenthe);
+            Gelderland.AddCommuters(new PopulationCluster(45100, 0, 0, 0), Overijssel);
+            Gelderland.AddCommuters(new PopulationCluster(8400, 0, 0, 0), Flevoland);
+            Gelderland.AddCommuters(new PopulationCluster(88800, 0, 0, 0), Utrecht);
+            Gelderland.AddCommuters(new PopulationCluster(24600, 0, 0, 0), NorthHolland);
+            Gelderland.AddCommuters(new PopulationCluster(20000, 0, 0, 0), SouthHolland);
+            Gelderland.AddCommuters(new PopulationCluster(400, 0, 0, 0), Zeeland);
+            Gelderland.AddCommuters(new PopulationCluster(43000, 0, 0, 0), NorthBrabant);
+            Gelderland.AddCommuters(new PopulationCluster(6600, 0, 0, 0), Limburg);
 
-            NorthHolland.AddNeighbour(Groningen, 1700);
-            NorthHolland.AddNeighbour(Friesland, 2200);
-            NorthHolland.AddNeighbour(Drenthe, 1200);
-            NorthHolland.AddNeighbour(Overijssel, 3900);
-            NorthHolland.AddNeighbour(Flevoland, 14500);
-            NorthHolland.AddNeighbour(Gelderland, 10500);
-            NorthHolland.AddNeighbour(Utrecht, 62800);
-            NorthHolland.AddNeighbour(SouthHolland, 58000);
-            NorthHolland.AddNeighbour(Zeeland, 400);
-            NorthHolland.AddNeighbour(NorthBrabant, 12200);
-            NorthHolland.AddNeighbour(Limburg, 1600);
+            // Utrecht
+            Utrecht.AddCommuters(new PopulationCluster(900, 0, 0, 0), Groningen);
+            Utrecht.AddCommuters(new PopulationCluster(700, 0, 0, 0), Friesland);
+            Utrecht.AddCommuters(new PopulationCluster(900, 0, 0, 0), Drenthe);
+            Utrecht.AddCommuters(new PopulationCluster(3700, 0, 0, 0), Overijssel);
+            Utrecht.AddCommuters(new PopulationCluster(5600, 0, 0, 0), Flevoland);
+            Utrecht.AddCommuters(new PopulationCluster(44300, 0, 0, 0), Gelderland);
+            Utrecht.AddCommuters(new PopulationCluster(84700, 0, 0, 0), NorthHolland);
+            Utrecht.AddCommuters(new PopulationCluster(38600, 0, 0, 0), SouthHolland);
+            Utrecht.AddCommuters(new PopulationCluster(300, 0, 0, 0), Zeeland);
+            Utrecht.AddCommuters(new PopulationCluster(13300, 0, 0, 0), NorthBrabant);
+            Utrecht.AddCommuters(new PopulationCluster(1500, 0, 0, 0), Limburg);
 
-            SouthHolland.AddNeighbour(Groningen, 1000);
-            SouthHolland.AddNeighbour(Friesland, 1100);
-            SouthHolland.AddNeighbour(Drenthe, 1000);
-            SouthHolland.AddNeighbour(Overijssel, 3000);
-            SouthHolland.AddNeighbour(Flevoland, 2300);
-            SouthHolland.AddNeighbour(Gelderland, 12700);
-            SouthHolland.AddNeighbour(Utrecht, 61400);
-            SouthHolland.AddNeighbour(NorthHolland, 117900);
-            SouthHolland.AddNeighbour(Zeeland, 3600);
-            SouthHolland.AddNeighbour(NorthBrabant, 40100);
-            SouthHolland.AddNeighbour(Limburg, 2500);
+            // North Holland
+            NorthHolland.AddCommuters(new PopulationCluster(1700, 0, 0, 0), Groningen);
+            NorthHolland.AddCommuters(new PopulationCluster(2200, 0, 0, 0), Friesland);
+            NorthHolland.AddCommuters(new PopulationCluster(1200, 0, 0, 0), Drenthe);
+            NorthHolland.AddCommuters(new PopulationCluster(3900, 0, 0, 0), Overijssel);
+            NorthHolland.AddCommuters(new PopulationCluster(14500, 0, 0, 0), Flevoland);
+            NorthHolland.AddCommuters(new PopulationCluster(10500, 0, 0, 0), Gelderland);
+            NorthHolland.AddCommuters(new PopulationCluster(62800, 0, 0, 0), Utrecht);
+            NorthHolland.AddCommuters(new PopulationCluster(58000, 0, 0, 0), SouthHolland);
+            NorthHolland.AddCommuters(new PopulationCluster(400, 0, 0, 0), Zeeland);
+            NorthHolland.AddCommuters(new PopulationCluster(12200, 0, 0, 0), NorthBrabant);
+            NorthHolland.AddCommuters(new PopulationCluster(1600, 0, 0, 0), Limburg);
 
-            Zeeland.AddNeighbour(Groningen, 100);
-            Zeeland.AddNeighbour(Friesland, 100);
-            Zeeland.AddNeighbour(Drenthe, 100);
-            Zeeland.AddNeighbour(Overijssel, 200);
-            Zeeland.AddNeighbour(Flevoland, 100);
-            Zeeland.AddNeighbour(Gelderland, 800);
-            Zeeland.AddNeighbour(Utrecht, 1200);
-            Zeeland.AddNeighbour(NorthHolland, 1900);
-            Zeeland.AddNeighbour(SouthHolland, 11300);
-            Zeeland.AddNeighbour(NorthBrabant, 12500);
-            Zeeland.AddNeighbour(Limburg, 200);
+            // South Holland
+            SouthHolland.AddCommuters(new PopulationCluster(1000, 0, 0, 0), Groningen);
+            SouthHolland.AddCommuters(new PopulationCluster(1100, 0, 0, 0), Friesland);
+            SouthHolland.AddCommuters(new PopulationCluster(1000, 0, 0, 0), Drenthe);
+            SouthHolland.AddCommuters(new PopulationCluster(3000, 0, 0, 0), Overijssel);
+            SouthHolland.AddCommuters(new PopulationCluster(2300, 0, 0, 0), Flevoland);
+            SouthHolland.AddCommuters(new PopulationCluster(12700, 0, 0, 0), Gelderland);
+            SouthHolland.AddCommuters(new PopulationCluster(61400, 0, 0, 0), Utrecht);
+            SouthHolland.AddCommuters(new PopulationCluster(117900, 0, 0, 0), NorthHolland);
+            SouthHolland.AddCommuters(new PopulationCluster(3600, 0, 0, 0), Zeeland);
+            SouthHolland.AddCommuters(new PopulationCluster(40100, 0, 0, 0), NorthBrabant);
+            SouthHolland.AddCommuters(new PopulationCluster(2500, 0, 0, 0), Limburg);
 
-            NorthBrabant.AddNeighbour(Groningen, 500);
-            NorthBrabant.AddNeighbour(Friesland, 700);
-            NorthBrabant.AddNeighbour(Drenthe, 700);
-            NorthBrabant.AddNeighbour(Overijssel, 3200);
-            NorthBrabant.AddNeighbour(Flevoland, 1300);
-            NorthBrabant.AddNeighbour(Gelderland, 36200);
-            NorthBrabant.AddNeighbour(Utrecht, 26400);
-            NorthBrabant.AddNeighbour(NorthHolland, 20800);
-            NorthBrabant.AddNeighbour(SouthHolland, 54900);
-            NorthBrabant.AddNeighbour(Zeeland, 5700);
-            NorthBrabant.AddNeighbour(Limburg, 24100);
+            // Zeeland
+            Zeeland.AddCommuters(new PopulationCluster(100, 0, 0, 0), Groningen);
+            Zeeland.AddCommuters(new PopulationCluster(100, 0, 0, 0), Friesland);
+            Zeeland.AddCommuters(new PopulationCluster(100, 0, 0, 0), Drenthe);
+            Zeeland.AddCommuters(new PopulationCluster(200, 0, 0, 0), Overijssel);
+            Zeeland.AddCommuters(new PopulationCluster(100, 0, 0, 0), Flevoland);
+            Zeeland.AddCommuters(new PopulationCluster(800, 0, 0, 0), Gelderland);
+            Zeeland.AddCommuters(new PopulationCluster(1200, 0, 0, 0), Utrecht);
+            Zeeland.AddCommuters(new PopulationCluster(1900, 0, 0, 0), NorthHolland);
+            Zeeland.AddCommuters(new PopulationCluster(11300, 0, 0, 0), SouthHolland);
+            Zeeland.AddCommuters(new PopulationCluster(12500, 0, 0, 0), NorthBrabant);
+            Zeeland.AddCommuters(new PopulationCluster(200, 0, 0, 0), Limburg);
 
-            Limburg.AddNeighbour(Groningen, 300);
-            Limburg.AddNeighbour(Friesland, 200);
-            Limburg.AddNeighbour(Drenthe, 200);
-            Limburg.AddNeighbour(Overijssel, 1300);
-            Limburg.AddNeighbour(Flevoland, 400);
-            Limburg.AddNeighbour(Gelderland, 10200);
-            Limburg.AddNeighbour(Utrecht, 4500);
-            Limburg.AddNeighbour(NorthHolland, 5900);
-            Limburg.AddNeighbour(SouthHolland, 5400);
-            Limburg.AddNeighbour(Zeeland, 200);
-            Limburg.AddNeighbour(NorthBrabant, 43000);
+            // North Brabant
+            NorthBrabant.AddCommuters(new PopulationCluster(500, 0, 0, 0), Groningen);
+            NorthBrabant.AddCommuters(new PopulationCluster(700, 0, 0, 0), Friesland);
+            NorthBrabant.AddCommuters(new PopulationCluster(700, 0, 0, 0), Drenthe);
+            NorthBrabant.AddCommuters(new PopulationCluster(3200, 0, 0, 0), Overijssel);
+            NorthBrabant.AddCommuters(new PopulationCluster(1300, 0, 0, 0), Flevoland);
+            NorthBrabant.AddCommuters(new PopulationCluster(36200, 0, 0, 0), Gelderland);
+            NorthBrabant.AddCommuters(new PopulationCluster(26400, 0, 0, 0), Utrecht);
+            NorthBrabant.AddCommuters(new PopulationCluster(20800, 0, 0, 0), NorthHolland);
+            NorthBrabant.AddCommuters(new PopulationCluster(54900, 0, 0, 0), SouthHolland);
+            NorthBrabant.AddCommuters(new PopulationCluster(5700, 0, 0, 0), Zeeland);
+            NorthBrabant.AddCommuters(new PopulationCluster(24100, 0, 0, 0), Limburg);
 
-            NorthHolland.infected = 10;
+            // Limburg
+            Limburg.AddCommuters(new PopulationCluster(300, 0, 0, 0), Groningen);
+            Limburg.AddCommuters(new PopulationCluster(200, 0, 0, 0), Friesland);
+            Limburg.AddCommuters(new PopulationCluster(200, 0, 0, 0), Drenthe);
+            Limburg.AddCommuters(new PopulationCluster(1300, 0, 0, 0), Overijssel);
+            Limburg.AddCommuters(new PopulationCluster(400, 0, 0, 0), Flevoland);
+            Limburg.AddCommuters(new PopulationCluster(10200, 0, 0, 0), Gelderland);
+            Limburg.AddCommuters(new PopulationCluster(4500, 0, 0, 0), Utrecht);
+            Limburg.AddCommuters(new PopulationCluster(5900, 0, 0, 0), NorthHolland);
+            Limburg.AddCommuters(new PopulationCluster(5400, 0, 0, 0), SouthHolland);
+            Limburg.AddCommuters(new PopulationCluster(200, 0, 0, 0), Zeeland);
+            Limburg.AddCommuters(new PopulationCluster(43000, 0, 0, 0), NorthBrabant);
+
+            NorthHolland.nativeWorkers.infected = 10;
+            NorthHolland.nativeWorkers.susceptible -= 10;
 
             return new List<Province> { Groningen, Friesland, Drenthe, Overijssel, Gelderland, Utrecht, NorthHolland, SouthHolland, Zeeland, NorthBrabant, Limburg, Flevoland };
         }
