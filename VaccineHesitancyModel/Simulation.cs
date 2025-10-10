@@ -21,14 +21,15 @@ namespace VaccineHesitancyModel
         public void Progress(int generations)
         {
             double baseVaccinations = 1000;
-            double deniedVaccinations = 0;
+            double averageVaccineHesitancy = 0.30;
 
             for (int i = 0; i < generations; i++)
             {
                 foreach (Province province in provinces)
                 {
                     // !!! Vaccinations need to be added + correct split of commuted/not commuted for graphs
-                    double averageVaccineHesitancy = 0.00;
+                    
+                    
 
                     //At home
                     Update(province, province.nativeWorkers, province.outgoingCommuters.Select(e => e.Item1).ToList(), baseVaccinations);
@@ -42,15 +43,26 @@ namespace VaccineHesitancyModel
                     }
                     Update(province, province.nativeWorkers, incoming.Select(e => e.Item1).ToList(), baseVaccinations);
 
-                    if (province.nativeWorkers.susceptible > baseVaccinations * (1 - averageVaccineHesitancy))
+                    
+        
+                }
+
+                //second iteration, such that all native and commuters can update before changing vaccination status
+                
+                foreach (Province province in provinces)
+                {
+                    double availableVaccinations = baseVaccinations + province.deniedVaccinations;
+                    if (province.nativeWorkers.susceptible >= availableVaccinations)
                     {
-                        province.nativeWorkers.susceptible -= baseVaccinations * (1 - averageVaccineHesitancy);
-                        province.nativeWorkers.vaccinated += baseVaccinations * (1 - averageVaccineHesitancy);
+                        province.nativeWorkers.susceptible -= availableVaccinations * (1 - averageVaccineHesitancy);
+                        province.nativeWorkers.vaccinated += availableVaccinations * (1 - averageVaccineHesitancy);
+                        province.deniedVaccinations = availableVaccinations * averageVaccineHesitancy;
                     }
                     else
                     {
-                        province.nativeWorkers.vaccinated += province.nativeWorkers.susceptible;
-                        province.nativeWorkers.susceptible -= province.nativeWorkers.susceptible;                     
+                        province.deniedVaccinations = province.nativeWorkers.susceptible * averageVaccineHesitancy;
+                        province.nativeWorkers.vaccinated += province.nativeWorkers.susceptible * (1 - averageVaccineHesitancy);
+                        province.nativeWorkers.susceptible -= province.nativeWorkers.susceptible * (1 - averageVaccineHesitancy);                     
                     }
                 }
 
@@ -134,7 +146,7 @@ namespace VaccineHesitancyModel
 
         public void PrintStatus()
         {
-            /*
+            
             string status = 
                 "generation: " + generation + ",\n" +
                 "inhabitants: " + ModelInhabitants().ToString() + ",\n" +
@@ -145,8 +157,8 @@ namespace VaccineHesitancyModel
                 '\n'
                 ;
             Console.WriteLine(status);
-            */
-            Console.WriteLine(ModelRecovered());
+            
+            //Console.WriteLine(ModelRecovered());
 
         }
     }

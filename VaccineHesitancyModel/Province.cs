@@ -14,6 +14,7 @@ namespace VaccineHesitancyModel
         public int id;
         public string name;
         public int totalInhabitants; //Calculated at initialisation
+        public double deniedVaccinations;
 
         public PopulationCluster nativeWorkers; //People only work is same province
         public List<(PopulationCluster, Province)> outgoingCommuters = []; //commuters from THIS province and its outgoing province
