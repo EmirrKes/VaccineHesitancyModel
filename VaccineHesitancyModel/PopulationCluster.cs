@@ -13,6 +13,9 @@ namespace VaccineHesitancyModel
         public double infected = 0;
         public double recovered = 0;
         public double vaccinated = 0;
+        public double vaccineAccepters = 0;
+        public double vaccineHesitators = 0;
+        public double vaccineRefusers = 0;
 
         public PopulationCluster(double sus, double inf, double rec, double vac)
         {
