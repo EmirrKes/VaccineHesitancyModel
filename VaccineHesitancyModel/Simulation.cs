@@ -12,25 +12,23 @@ namespace VaccineHesitancyModel
         int generation = 0;
         List<Province> provinces;
         public List<StatusPoint> pastStatuses = new List<StatusPoint>();
+        public double highestInfections = 0;
+        public double highestRecovered = 0;
 
         public Simulation(List<Province> provinces)
         {
             this.provinces = provinces;
         }
 
-        public void Progress(int generations)
+        public void Progress(int generations, double averageVaccineHesitancy)
         {
             double averageVaccineAvailability = 32877;
-            double averageVaccineHesitancy = 0.42;
+            double absoluteVaccineRefusal = 0.3 * averageVaccineHesitancy; //moet nog een ander getal zijn
 
             for (int i = 0; i < generations; i++)
             {
                 foreach (Province province in provinces)
-                {
-                    // !!! Vaccinations need to be added + correct split of commuted/not commuted for graphs
-                    
-                    
-
+                {               
                     //At home
                     Update(province, province.nativeWorkers, province.outgoingCommuters.Select(e => e.Item1).ToList());
 
@@ -42,32 +40,57 @@ namespace VaccineHesitancyModel
                             incoming.Add(province2.outgoingCommuters.Find(e => e.Item2 == province));
                     }
                     Update(province, province.nativeWorkers, incoming.Select(e => e.Item1).ToList());
-
-                    
-        
+      
                 }
 
                 //second iteration, such that all native and commuters can update before changing vaccination status
 
-                //int hallo = 5;
                 foreach (Province province in provinces)
                 {
-                    int hallo = ModelInhabitants();
-                    double baseVaccinations =  averageVaccineAvailability * (province.totalInhabitants / (double)hallo);
+                    double baseVaccinations =  averageVaccineAvailability * (province.totalInhabitants / (double)ModelInhabitants());
                     double availableVaccinations = baseVaccinations + province.deniedVaccinations;
-                    if (province.nativeWorkers.susceptible >= availableVaccinations)
+
+                    List<PopulationCluster> outgoingCommuters = province.outgoingCommuters.Select(x => x.Item1).ToList();
+                    double percentageNative = province.nativeWorkers.susceptible / province.TotalSusceptible(outgoingCommuters);
+                    double percentageEachCommutingCluster = (1 - percentageNative) / outgoingCommuters.Count();
+
+                    if (province.TotalSusceptible(outgoingCommuters) >= availableVaccinations)
                     {
-                        province.nativeWorkers.susceptible -= availableVaccinations * (1 - averageVaccineHesitancy);
-                        province.nativeWorkers.vaccinated += availableVaccinations * (1 - averageVaccineHesitancy);
+                        double toChange = availableVaccinations * (1 - averageVaccineHesitancy);
+
+                        province.nativeWorkers.susceptible -= toChange * percentageNative;
+                        province.nativeWorkers.vaccinated += toChange * percentageNative;
+                        foreach (PopulationCluster cluster in outgoingCommuters)
+                        {
+                            double sum = (cluster.susceptible / outgoingCommuters.Sum(x => x.susceptible));
+                            cluster.susceptible -= Math.Min((toChange * sum * percentageEachCommutingCluster ), 10000 * percentageNative);
+                            cluster.vaccinated += Math.Min((toChange * sum * percentageEachCommutingCluster ), 10000 * percentageNative);
+                        }
+                        
                         province.deniedVaccinations = availableVaccinations * averageVaccineHesitancy;
                     }
                     else
                     {
-                        province.deniedVaccinations = province.nativeWorkers.susceptible * averageVaccineHesitancy;
-                        province.nativeWorkers.vaccinated += province.nativeWorkers.susceptible * (1 - averageVaccineHesitancy);
-                        province.nativeWorkers.susceptible -= province.nativeWorkers.susceptible * (1 - averageVaccineHesitancy);                     
+                        double toChange = province.TotalSusceptible(outgoingCommuters) * (1 - averageVaccineHesitancy);
+                        
+                        province.nativeWorkers.susceptible -= toChange * percentageNative;
+                        province.nativeWorkers.vaccinated += toChange * percentageNative;                     
+                        foreach (PopulationCluster cluster in outgoingCommuters)
+                        {
+                            double sum = (cluster.susceptible / outgoingCommuters.Sum(x => x.susceptible));
+                            cluster.susceptible -= Math.Min((toChange * percentageEachCommutingCluster * sum), 10000 * percentageEachCommutingCluster);
+                            cluster.vaccinated += Math.Min((toChange * percentageEachCommutingCluster * sum), 10000 * percentageEachCommutingCluster);
+                        }
+
+                        province.deniedVaccinations = province.TotalSusceptible(outgoingCommuters) * averageVaccineHesitancy;
                     }
                 }
+
+                double currentInfected = ModelInfected();
+                highestInfections = currentInfected > highestInfections ? currentInfected : highestInfections;
+
+                double currentRecovered = ModelRecovered();
+                highestRecovered = currentRecovered > highestRecovered ? currentRecovered : highestRecovered;
 
                 generation++;
                 PrintStatus();
@@ -158,6 +181,8 @@ namespace VaccineHesitancyModel
                 "recovered: " + ModelRecovered().ToString() + ",\n" +
                 "susceptible: " + ModelSusceptible().ToString() + ",\n" +
                 "vaccinated: " + ModelVaccinated().ToString() + ",\n" +
+                "Highest Infected: " + highestInfections.ToString() + ",\n" +
+                "Highest Recovered: " + highestRecovered.ToString() + ",\n" +
                 '\n'
                 ;
             Console.WriteLine(status);
@@ -171,6 +196,14 @@ namespace VaccineHesitancyModel
             StatusPoint SP = new StatusPoint(generation, ModelSusceptible(), ModelInfected(),
                                                                 ModelRecovered(), ModelVaccinated());
             pastStatuses.Add(SP);
+        }
+
+        public void Reset()
+        {
+            generation = 0;
+            provinces = ProvinceInit.CreateProvinces(); ;
+            pastStatuses = new List<StatusPoint>();
+            highestInfections = 0;
         }
     }
 }

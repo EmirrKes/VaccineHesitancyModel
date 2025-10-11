@@ -37,9 +37,11 @@ namespace VaccineHesitancyModel
                     {
                         case "e": Application.Exit();
                             break;
-                        case "p":  if  (inputs.Count() >= 2) { simulation.Progress(Convert.ToInt32(inputs[1]));
+                        case "p":  if  (inputs.Count() >= 3) { simulation.Progress(Convert.ToInt32(inputs[1]), Convert.ToDouble(inputs[2]));
                                         form.drawModel(simulation); }
                             else Console.WriteLine("Missing generation number");
+                            break;
+                        case "r": simulation.Reset();
                             break;
                         default: Console.WriteLine("invalid command");
                             break;
