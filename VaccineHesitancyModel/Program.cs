@@ -1,5 +1,7 @@
 using System.Runtime.InteropServices;
 using System.Threading;
+using OxyPlot;
+using OxyPlot.WindowsForms;
 
 namespace VaccineHesitancyModel
 {
@@ -21,6 +23,9 @@ namespace VaccineHesitancyModel
             Simulation simulation = new Simulation(provinces);
             simulation.PrintStatus();
 
+            ApplicationConfiguration.Initialize();
+            Form1 form = new Form1();
+
             Thread consoleThread = new Thread(() =>
             {
                 while (true)
@@ -32,8 +37,9 @@ namespace VaccineHesitancyModel
                     {
                         case "e": Application.Exit();
                             break;
-                        case "p":  if (inputs.Count() >= 2) simulation.Progress(Convert.ToInt32(inputs[1]));
-                                    else Console.WriteLine("Missing generation number");
+                        case "p":  if  (inputs.Count() >= 2) { simulation.Progress(Convert.ToInt32(inputs[1]));
+                                        form.drawModel(simulation); }
+                            else Console.WriteLine("Missing generation number");
                             break;
                         default: Console.WriteLine("invalid command");
                             break;
@@ -45,8 +51,7 @@ namespace VaccineHesitancyModel
             consoleThread.IsBackground = true;
             consoleThread.Start();
 
-            ApplicationConfiguration.Initialize();
-            Application.Run(new Form1());
+            Application.Run(form);
         }
     }
 }

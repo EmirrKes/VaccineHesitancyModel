@@ -11,7 +11,7 @@ namespace VaccineHesitancyModel
     {
         int generation = 0;
         List<Province> provinces;
-
+        public List<StatusPoint> pastStatuses = new List<StatusPoint>();
 
         public Simulation(List<Province> provinces)
         {
@@ -20,8 +20,8 @@ namespace VaccineHesitancyModel
 
         public void Progress(int generations)
         {
-            double baseVaccinations = 1000;
-            double averageVaccineHesitancy = 0.30;
+            double averageVaccineAvailability = 32877;
+            double averageVaccineHesitancy = 0.42;
 
             for (int i = 0; i < generations; i++)
             {
@@ -32,7 +32,7 @@ namespace VaccineHesitancyModel
                     
 
                     //At home
-                    Update(province, province.nativeWorkers, province.outgoingCommuters.Select(e => e.Item1).ToList(), baseVaccinations);
+                    Update(province, province.nativeWorkers, province.outgoingCommuters.Select(e => e.Item1).ToList());
 
                     //At work
                     List<(PopulationCluster, Province)> incoming = [];
@@ -41,16 +41,19 @@ namespace VaccineHesitancyModel
                         if (province2.id != province.id)
                             incoming.Add(province2.outgoingCommuters.Find(e => e.Item2 == province));
                     }
-                    Update(province, province.nativeWorkers, incoming.Select(e => e.Item1).ToList(), baseVaccinations);
+                    Update(province, province.nativeWorkers, incoming.Select(e => e.Item1).ToList());
 
                     
         
                 }
 
                 //second iteration, such that all native and commuters can update before changing vaccination status
-                
+
+                //int hallo = 5;
                 foreach (Province province in provinces)
                 {
+                    int hallo = ModelInhabitants();
+                    double baseVaccinations =  averageVaccineAvailability * (province.totalInhabitants / (double)hallo);
                     double availableVaccinations = baseVaccinations + province.deniedVaccinations;
                     if (province.nativeWorkers.susceptible >= availableVaccinations)
                     {
@@ -68,13 +71,14 @@ namespace VaccineHesitancyModel
 
                 generation++;
                 PrintStatus();
+                SaveStatus();
             }
         }
 
 
         //Given the provinces NativeWorkers and the commuters(incoming or at home)
         //current province, native workers, at home workers/incoming commuters, vaccinations
-        public void Update(Province prov, PopulationCluster native, List<PopulationCluster> present, double vaccinations)
+        public void Update(Province prov, PopulationCluster native, List<PopulationCluster> present)
         {
 
             //for each cluster, increase values with this percentage. If maxed out, cap it
@@ -160,6 +164,13 @@ namespace VaccineHesitancyModel
             
             //Console.WriteLine(ModelRecovered());
 
+        }
+
+        private void SaveStatus()
+        {
+            StatusPoint SP = new StatusPoint(generation, ModelSusceptible(), ModelInfected(),
+                                                                ModelRecovered(), ModelVaccinated());
+            pastStatuses.Add(SP);
         }
     }
 }
