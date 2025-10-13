@@ -14,6 +14,7 @@ namespace VaccineHesitancyModel
         public List<StatusPoint> pastStatuses = new List<StatusPoint>();
         public double highestInfections = 0;
         public double highestRecovered = 0;
+        public double highestDeltaI = 0;
 
         public Simulation(List<Province> provinces)
         {
@@ -110,6 +111,8 @@ namespace VaccineHesitancyModel
                 double dS = 0.5 * -0.43 * prov.TotalInfected(present) * (cluster.susceptible / prov.TotalPresent(present));
                 double dR = 0.5 * 0.2 * cluster.infected;
                 double dI = -dS - dR;
+
+                highestDeltaI = dI > highestDeltaI ? dI : highestDeltaI;
 
                 cluster.susceptible = Math.Max(0, cluster.susceptible + dS);
                 cluster.infected = Math.Max(0, Math.Min(cluster.total, cluster.infected + dI));

@@ -25,7 +25,7 @@ namespace VaccineHesitancyModel
   
         }
 
-        internal void drawModel(Simulation simulation)
+        internal void drawBaseModel(Simulation simulation)
         {
             // Holds your chart data
             var model = new PlotModel { Title = "My Calculated Values" };
@@ -72,6 +72,73 @@ namespace VaccineHesitancyModel
             model.Series.Add(recoveredLine);
             model.Series.Add(vaccinatedLine);
 
+            plotView.Model = model;
+        }
+
+        internal void drawInfectedModel(Simulation simulation)
+        {
+            simulation.Reset();
+
+            List<List<StatusPoint>> statusPoints = new List<List<StatusPoint>>();
+
+            int generations = 100;
+            double hesitancyIncrement = 0.1;
+            for (int i = 0; i < 5; i++)
+            {
+                simulation.Progress(generations, hesitancyIncrement * (i + 1));
+                statusPoints.Add(simulation.pastStatuses);
+                simulation.Reset();
+            }
+
+            var model = new PlotModel { Title = "Incrementing hesitancies" };
+            List<LineSeries> lines = new List<LineSeries>();
+
+            int j = 0;
+            foreach (List<StatusPoint> SP in statusPoints)
+            {
+                var line = new LineSeries
+                {
+                    Title = "Hesitancy: " + hesitancyIncrement * (j + 1)
+                };
+
+                foreach (StatusPoint sp in SP)
+                    line.Points.Add(new DataPoint(sp.generation, sp.recovered));
+
+                model.Series.Add(line);
+
+                j++;
+            }
+
+            plotView.Model = model;
+        }
+
+        internal void drawDeltaI(Simulation simulation)
+        {
+            simulation.Reset();
+
+            int generations = 100;
+            double hesitancyIncrement = 0.05;
+
+            List<double> highestDeltaIs = new List<double>();
+
+            for (int i = 0; i < 1 / hesitancyIncrement; i++)
+            {
+                simulation.Progress(generations, hesitancyIncrement * (i + 1));
+                highestDeltaIs.Add(i);
+                simulation.Reset();
+            }
+
+            var model = new PlotModel { Title = "Infection rate based on hesitancy" };
+
+            var line = new LineSeries
+            {
+                Title = "Infection rating"
+            };
+
+            for (int i = 0; i < highestDeltaIs.Count(); i++)           
+                line.Points.Add(new DataPoint(hesitancyIncrement * (i + 1), highestDeltaIs[i]));
+
+            model.Series.Add(line);
             plotView.Model = model;
         }
     }
