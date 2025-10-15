@@ -1,4 +1,6 @@
 using OxyPlot;
+using OxyPlot.Axes;
+using OxyPlot.Legends;
 using OxyPlot.Series;
 using OxyPlot.WindowsForms;
 using System.Security.Cryptography.X509Certificates;
@@ -28,31 +30,31 @@ namespace VaccineHesitancyModel
         internal void drawBaseModel(Simulation simulation)
         {
             // Holds your chart data
-            var model = new PlotModel { Title = "My Calculated Values" };
+            var model = new PlotModel { Title = "Baseline model. Hesitancy: " + simulation.usedHesitation };
 
             // Create lines
             var susceptibleLine = new LineSeries
             {
-                Title = "Values",
-                MarkerType = MarkerType.Circle,
+                Title = "Susceptible",
+                //MarkerType = MarkerType.Circle,
                 Color = OxyColor.FromRgb(255, 165, 0)
             };
             var infectionsLine = new LineSeries
             {
-                Title = "Values",
-                MarkerType = MarkerType.Circle,
+                Title = "Infected",
+                //MarkerType = MarkerType.Circle,
                 Color = OxyColor.FromRgb(123, 0, 0)
             };
             var recoveredLine = new LineSeries
             {
-                Title = "Values",
-                MarkerType = MarkerType.Circle,
+                Title = "Recovered",
+                //MarkerType = MarkerType.Circle,
                 Color = OxyColor.FromRgb(0, 0, 123)
             };
             var vaccinatedLine = new LineSeries
             {
-                Title = "Values",
-                MarkerType = MarkerType.Circle,
+                Title = "Vaccinated",
+                //MarkerType = MarkerType.Circle,
                 Color = OxyColor.FromRgb(0, 123, 0)
             };
 
@@ -72,6 +74,14 @@ namespace VaccineHesitancyModel
             model.Series.Add(recoveredLine);
             model.Series.Add(vaccinatedLine);
 
+            model.Axes.Add(new LinearAxis { Position = AxisPosition.Bottom, Title = "Generation" });
+            model.Axes.Add(new LinearAxis { Position = AxisPosition.Left, Title = "Individuals" });
+
+            model.Legends.Add(new Legend()
+            {
+                LegendTitle = "Legend",
+                LegendPosition = LegendPosition.TopRight,
+            });
             plotView.Model = model;
         }
 

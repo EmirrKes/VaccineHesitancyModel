@@ -15,7 +15,7 @@ namespace VaccineHesitancyModel
         public double highestInfections = 0;
         public double highestRecovered = 0;
         public double highestDeltaI = 0;
-
+        public double usedHesitation = 0;
         public Simulation(List<Province> provinces)
         {
             this.provinces = provinces;
@@ -23,6 +23,7 @@ namespace VaccineHesitancyModel
 
         public void Progress(int generations, double averageVaccineHesitancy)
         {
+            usedHesitation = averageVaccineHesitancy;
             double averageVaccineAvailability = 32877;
             double absoluteVaccineRefusal = 0.3 * averageVaccineHesitancy; //moet nog een ander getal zijn
 

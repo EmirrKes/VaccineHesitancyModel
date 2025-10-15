@@ -40,9 +40,9 @@ namespace VaccineHesitancyModel
                         case "p":  if (inputs.Count() >= 3)
                             {
                                 simulation.Progress(Convert.ToInt32(inputs[1]), Convert.ToDouble(inputs[2]));
-                                //form.drawBaseModel(simulation);
+                                form.drawBaseModel(simulation);
                                 //form.drawInfectedModel(simulation);
-                                form.drawDeltaI(simulation);
+                                //form.drawDeltaI(simulation);
                             }
                             else Console.WriteLine("Missing generation number");
                             break;
