@@ -23,7 +23,7 @@ namespace VaccineHesitancyModel
         public void Progress(int generations, double VaccineHesitancy)
         {
             double averageVaccineAvailability = 32877;  // 12million/365days
-            double totalVaccinationHesitancyRate = 0.01; // Total percentage of people doubting/refusing vaccinations
+            double totalVaccinationHesitancyRate = 0.3; // Total percentage of people doubting/refusing vaccinations
             double acceptanceRate = 0.5;                // 50% of hesitant are refusers
             double hesitantRate = 1 - acceptanceRate;   // 50% of hesitant are actually hesitant
 
@@ -59,14 +59,12 @@ namespace VaccineHesitancyModel
                 //This will be done each day, when people are at home
                 foreach (Province province in provinces)
                 {
-
-                    double test = ModelInhabitants();
-                    double all = province.totalInhabitants / test;
-                    refusedVaccinations += Vaccinate(province, (averageVaccineAvailability + refusedVaccinationsPrev) * all ); //maybe use fraction of susceptible?
+                    double people = ModelInhabitants();
+                    double totalPrc = province.totalInhabitants / people;
+                    refusedVaccinations += Vaccinate(province, (averageVaccineAvailability) * totalPrc); //maybe use fraction of susceptible ?? All refused vaccinations added: + refusedVaccinationsPrev
                 }
 
-
-
+                //GRAPHS
                 double currentInfected = ModelInfected();
                 highestInfections = currentInfected > highestInfections ? currentInfected : highestInfections;
 
@@ -132,18 +130,22 @@ namespace VaccineHesitancyModel
 
         public double Vaccinate(Province toVaccinate, double availableVaccinations)
         {
-            double refusedVaccinations = 0;
-            Random rnd = new Random(); //for random change to stop hesitating
+            /* This function vaccinates an entire province(city) with given vaccination(hesitancy) rates.
+             * To properly update this, hesitant and refusal people need to be updated proportionally.
+             */
 
-            //=============================================\\
-            //=== Start with updating the NativeWorkers ===\\
-            //=============================================\\
+            double refusedVaccinations = 0;
+            Random rnd = new Random(); //A random change for hesitant people to accept a vaccination
+
+            //================================\\
+            //=== Update the NativeWorkers ===\\
+            //================================\\
 
             double nativeVaccinations = availableVaccinations * (toVaccinate.nativeWorkers.total / toVaccinate.totalInhabitants);   //Maybe relative to susceptible??
 
             if (toVaccinate.nativeWorkers.susceptible > 0)
             {
-                // percentage(needs to be calculated before vaccineHesitators is changed) of people not in hesitancy group
+                // Non-hesitant people. This needs to be calculated before hesitant count is changed
                 double nonHesitant =
                     (toVaccinate.nativeWorkers.susceptible - toVaccinate.nativeWorkers.vaccineHesitators -
                      toVaccinate.nativeWorkers.vaccineRefusers) / toVaccinate.nativeWorkers.susceptible;
@@ -159,8 +161,8 @@ namespace VaccineHesitancyModel
                                                toVaccinate.nativeWorkers.susceptible);
                 for (int i = 0; i < (int)hesitantVaccinations; i++)
                 {
-                    int rndNum = rnd.Next(1, 7); //Dice roll
-                    if (rndNum > 4 && toVaccinate.nativeWorkers.vaccineHesitators > 0 && toVaccinate.nativeWorkers.susceptible > 0)
+                    int rndNum = rnd.Next(1, 11); //Dice roll
+                    if (rndNum >= 10 && toVaccinate.nativeWorkers.vaccineHesitators > 0 && toVaccinate.nativeWorkers.susceptible > 0)
                     {
                         toVaccinate.nativeWorkers.vaccineHesitators--;
                         toVaccinate.nativeWorkers.vaccinated++;
@@ -170,7 +172,7 @@ namespace VaccineHesitancyModel
                         refusedVaccinations++;
                 }
 
-                //Certain Acceptance
+                //Certain Acceptance(Non-Hesitant group)
                 if ((toVaccinate.nativeWorkers.susceptible - toVaccinate.nativeWorkers.vaccineHesitators - toVaccinate.nativeWorkers.vaccineRefusers) - nonHesitant * nativeVaccinations < 0)
                 {
                     toVaccinate.nativeWorkers.vaccinated += (toVaccinate.nativeWorkers.susceptible - toVaccinate.nativeWorkers.vaccineHesitators - toVaccinate.nativeWorkers.vaccineRefusers);
@@ -184,8 +186,8 @@ namespace VaccineHesitancyModel
                 }
 
             }
-            else
-                refusedVaccinations += nativeVaccinations;
+            //else
+            //    refusedVaccinations += nativeVaccinations;
 
 
 
@@ -198,7 +200,7 @@ namespace VaccineHesitancyModel
                 double clusterVaccinations = availableVaccinations * (cluster.total / toVaccinate.totalInhabitants);                    // Relative to susceptible ??? 
                 if (cluster.susceptible > 0)
                 {
-                    // percentage(needs to be calculated before vaccineHesitators is changed) of people not in hesitancy group
+                    // Non-hesitant people. This needs to be calculated before hesitant count is changed
                     double nonHesitantCluster = (cluster.susceptible - cluster.vaccineHesitators - cluster.vaccineRefusers) / cluster.susceptible;
 
                     //Certain Refusal
@@ -208,8 +210,8 @@ namespace VaccineHesitancyModel
                     double hesitantVaccinationsCluster = clusterVaccinations * (cluster.vaccineHesitators / cluster.susceptible);
                     for (int i = 0; i < (int)hesitantVaccinationsCluster; i++)
                     {
-                            int rndNum = rnd.Next(1, 7); //Dice roll
-                            if (rndNum > 4 && cluster.vaccineHesitators > 0 && cluster.susceptible > 0)
+                            int rndNum = rnd.Next(1, 11); //Dice roll
+                            if (rndNum >= 10 && cluster.vaccineHesitators > 0 && cluster.susceptible > 0)
                             {
                                 cluster.vaccineHesitators--;
                                 cluster.vaccinated++;
@@ -219,7 +221,7 @@ namespace VaccineHesitancyModel
                                 refusedVaccinations++;
                     }
 
-                    //Certain Acceptance
+                    //Certain Acceptance (Non-Hesitant group)
                     if ((cluster.susceptible - cluster.vaccineHesitators - cluster.vaccineRefusers) - nonHesitantCluster * clusterVaccinations < 0)
                     {
                         cluster.vaccinated += (cluster.susceptible - cluster.vaccineHesitators - cluster.vaccineRefusers);
@@ -231,8 +233,8 @@ namespace VaccineHesitancyModel
                         cluster.susceptible = Math.Max(0, cluster.susceptible - nonHesitantCluster * clusterVaccinations);
                     }
                 }
-                else
-                    refusedVaccinations += clusterVaccinations;
+                //else
+                    //refusedVaccinations += clusterVaccinations;
             }
             return refusedVaccinations; //return the unused vaccinations
         }
