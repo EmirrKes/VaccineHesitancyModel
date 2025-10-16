@@ -23,7 +23,7 @@ namespace VaccineHesitancyModel
         public void Progress(int generations, double VaccineHesitancy)
         {
             double averageVaccineAvailability = 32877;  // 12million/365days
-            double totalVaccinationHesitancyRate = 0.3; // Total percentage of people doubting/refusing vaccinations
+            double totalVaccinationHesitancyRate = VaccineHesitancy / 100; // Total percentage of people doubting/refusing vaccinations
             double acceptanceRate = 0.5;                // 50% of hesitant are refusers
             double hesitantRate = 1 - acceptanceRate;   // 50% of hesitant are actually hesitant
 
