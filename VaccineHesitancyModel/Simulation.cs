@@ -22,29 +22,24 @@ namespace VaccineHesitancyModel
 
         public void Progress(int generations, double VaccineHesitancy)
         {
-            double averageVaccineAvailability = 32877;
-            double absoluteVaccineRefusal = 0.3 * VaccineHesitancy; //subset of absolute refusing people (NOT FACTUAL)
-            double averageVaccineHesitancy = 0.7 * VaccineHesitancy; //subset of hesitant people (NOT FACTUAL)
+            double averageVaccineAvailability = 32877;  // 12million/365days
+            double totalVaccinationHesitancyRate = 0.01; // Total percentage of people doubting/refusing vaccinations
+            double acceptanceRate = 0.5;                // 50% of hesitant are refusers
+            double hesitantRate = 1 - acceptanceRate;   // 50% of hesitant are actually hesitant
 
-            double acceptenceRate = 0.3; //how often of the time hesitating people accept (NOT FACTUAL)
+            double refusedVaccinationsPrev = 0;
+            double refusedVaccinations = 0;
 
-            //init subsets
-            foreach (Province province in provinces)
-            {
-                province.nativeWorkers.vaccineAccepters = province.nativeWorkers.total * (1 - VaccineHesitancy);
-                province.nativeWorkers.vaccineHesitators = province.nativeWorkers.total * averageVaccineHesitancy;
-                province.nativeWorkers.vaccineRefusers = province.nativeWorkers.total * absoluteVaccineRefusal;
-
-                foreach ( PopulationCluster cluster in province.outgoingCommuters.Select(e => e.Item1).ToList())
-                {
-                    cluster.vaccineAccepters = cluster.total * (1 - VaccineHesitancy);
-                    cluster.vaccineHesitators = cluster.total * averageVaccineHesitancy;
-                    cluster.vaccineRefusers = cluster.total * absoluteVaccineRefusal;
-                }
-            }
-
+            //init subsets with Hesitant people
+            if (highestInfections == 0) //First iteration
+                InitProvHesitancy(totalVaccinationHesitancyRate, acceptanceRate, hesitantRate);
+            
+            //Run the 2 Sub-Steps
             for (int i = 0; i < generations; i++)
             {
+                refusedVaccinationsPrev = refusedVaccinations;
+                refusedVaccinations = 0;
+
                 foreach (Province province in provinces)
                 {               
                     //At home
@@ -60,60 +55,17 @@ namespace VaccineHesitancyModel
                     Update(province, province.nativeWorkers, incoming.Select(e => e.Item1).ToList());
                 }
 
-                //second iteration, such that all native and commuters can update before changing vaccination status
-
+                //Now run all vaccinations
+                //This will be done each day, when people are at home
                 foreach (Province province in provinces)
                 {
-                    double baseVaccinations =  averageVaccineAvailability * (province.totalInhabitants / (double)ModelInhabitants());
-                    double availableVaccinations = baseVaccinations + province.deniedVaccinations;
 
-                    List<PopulationCluster> outgoingCommuters = province.outgoingCommuters.Select(x => x.Item1).ToList();
-                    double percentageNative = province.nativeWorkers.susceptible / province.TotalSusceptible(outgoingCommuters);
-                    double percentageEachCommutingCluster = (1 - percentageNative) / outgoingCommuters.Count();
-
-                    double percentageNativeAccepters = province.nativeWorkers.vaccineAccepters / province.nativeWorkers.susceptible;
-                    double percentageNativeHesitators = province.nativeWorkers.vaccineHesitators / province.nativeWorkers.susceptible;                  
-
-                    if (province.TotalSusceptible(outgoingCommuters) >= availableVaccinations)
-                    {
-                        double toChange = availableVaccinations * percentageNativeAccepters + (percentageNativeHesitators * acceptenceRate);
-
-                        province.nativeWorkers.susceptible -= toChange * percentageNative;
-                        province.nativeWorkers.vaccineAccepters -= toChange * percentageNative * percentageNativeAccepters;
-                        province.nativeWorkers.vaccineHesitators -= toChange * percentageNative * percentageNativeHesitators;
-                        province.nativeWorkers.vaccinated += toChange * percentageNative;
-                        foreach (PopulationCluster cluster in outgoingCommuters)
-                        {
-                            double percentageClusterAccepters = cluster.vaccineAccepters / cluster.susceptible;
-                            double percentageClusterHesitators = cluster.vaccineHesitators / cluster.susceptible;
-
-                            double sum = (cluster.susceptible / outgoingCommuters.Sum(x => x.susceptible));
-                            cluster.susceptible -= Math.Min((toChange * sum * percentageEachCommutingCluster ), 10000 * percentageNative);
-                            cluster.vaccineAccepters -= Math.Min((toChange * sum * percentageEachCommutingCluster * percentageClusterAccepters)
-                                                                    , 10000 * percentageNative);
-                            cluster.susceptible -= Math.Min((toChange * sum * percentageEachCommutingCluster * percentageClusterHesitators)
-                                                                    , 10000 * percentageNative);
-                            cluster.vaccinated += Math.Min((toChange * sum * percentageEachCommutingCluster ), 10000 * percentageNative);
-                        }
-                        
-                        province.deniedVaccinations = availableVaccinations - toChange;
-                    }
-                    else
-                    {
-                        double toChange = province.TotalSusceptible(outgoingCommuters) * (1 - averageVaccineHesitancy);
-                        
-                        province.nativeWorkers.susceptible -= toChange * percentageNative;
-                        province.nativeWorkers.vaccinated += toChange * percentageNative;                     
-                        foreach (PopulationCluster cluster in outgoingCommuters)
-                        {
-                            double sum = (cluster.susceptible / outgoingCommuters.Sum(x => x.susceptible));
-                            cluster.susceptible -= Math.Min((toChange * percentageEachCommutingCluster * sum), 10000 * percentageEachCommutingCluster);
-                            cluster.vaccinated += Math.Min((toChange * percentageEachCommutingCluster * sum), 10000 * percentageEachCommutingCluster);
-                        }
-
-                        province.deniedVaccinations = province.TotalSusceptible(outgoingCommuters) * averageVaccineHesitancy;
-                    }
+                    double test = ModelInhabitants();
+                    double all = province.totalInhabitants / test;
+                    refusedVaccinations += Vaccinate(province, (averageVaccineAvailability + refusedVaccinationsPrev) * all ); //maybe use fraction of susceptible?
                 }
+
+
 
                 double currentInfected = ModelInfected();
                 highestInfections = currentInfected > highestInfections ? currentInfected : highestInfections;
@@ -140,7 +92,6 @@ namespace VaccineHesitancyModel
                 double dR = 0.5 * 0.2 * cluster.infected;
                 double dI = -dS - dR;
 
-                cluster.vaccineAccepters = Math.Max(0, cluster.vaccineAccepters + dS * (cluster.vaccineAccepters / cluster.susceptible));
                 cluster.vaccineRefusers = Math.Max(0, cluster.vaccineRefusers + dS * ( cluster.vaccineRefusers / cluster.susceptible));
                 cluster.vaccineHesitators = Math.Max(0, cluster.vaccineHesitators + dS * ( cluster.vaccineHesitators / cluster.susceptible));
 
@@ -154,18 +105,139 @@ namespace VaccineHesitancyModel
             double dR2 = 0.5 * 0.2 * native.infected;
             double dI2 = -dS2 - dR2;
 
-            native.vaccineAccepters = Math.Max(0, native.vaccineAccepters + dS2 * (native.vaccineAccepters / native.susceptible));
+            native.vaccineRefusers = Math.Max(0, native.vaccineRefusers + dS2 * (native.vaccineRefusers / native.susceptible));
             native.vaccineHesitators = Math.Max(0, native.vaccineHesitators + dS2 * (native.vaccineHesitators / native.susceptible));
-            native.vaccineAccepters = Math.Max(0, native.vaccineAccepters + dS2 * (native.vaccineRefusers / native.susceptible));
 
             native.susceptible = Math.Max(0, native.susceptible + dS2);
             native.infected = Math.Max(0, Math.Min(native.total, native.infected + dI2));
             native.recovered = Math.Min(native.total, native.recovered + dR2);
+        } 
+
+        public void InitProvHesitancy(double hesitancyRate, double refusalRate, double hesitantAcceptanceRate)
+        {
+            foreach (Province province in provinces)
+            {
+                //province.nativeWorkers.vaccineAccepters = province.nativeWorkers.total * (1 - VaccineHesitancy);
+                province.nativeWorkers.vaccineHesitators = province.nativeWorkers.total * hesitancyRate * hesitantAcceptanceRate;
+                province.nativeWorkers.vaccineRefusers = province.nativeWorkers.total * hesitancyRate * refusalRate;
+
+                foreach (PopulationCluster cluster in province.outgoingCommuters.Select(e => e.Item1).ToList())
+                {
+                    //cluster.vaccineAccepters = cluster.total * (1 - VaccineHesitancy);
+                    cluster.vaccineHesitators = cluster.total * hesitancyRate * hesitantAcceptanceRate;
+                    cluster.vaccineRefusers = cluster.total * hesitancyRate * refusalRate;
+                }
+            }
+        }
+
+        public double Vaccinate(Province toVaccinate, double availableVaccinations)
+        {
+            double refusedVaccinations = 0;
+            Random rnd = new Random(); //for random change to stop hesitating
+
+            //=============================================\\
+            //=== Start with updating the NativeWorkers ===\\
+            //=============================================\\
+
+            double nativeVaccinations = availableVaccinations * (toVaccinate.nativeWorkers.total / toVaccinate.totalInhabitants);   //Maybe relative to susceptible??
+
+            if (toVaccinate.nativeWorkers.susceptible > 0)
+            {
+                // percentage(needs to be calculated before vaccineHesitators is changed) of people not in hesitancy group
+                double nonHesitant =
+                    (toVaccinate.nativeWorkers.susceptible - toVaccinate.nativeWorkers.vaccineHesitators -
+                     toVaccinate.nativeWorkers.vaccineRefusers) / toVaccinate.nativeWorkers.susceptible;
+
+                //Certain Refusal
+                refusedVaccinations += nativeVaccinations *
+                                       (toVaccinate.nativeWorkers.vaccineRefusers /
+                                        toVaccinate.nativeWorkers.susceptible); //native refusal percentage
+
+                //Hesitant people
+                double hesitantVaccinations = nativeVaccinations *
+                                              (toVaccinate.nativeWorkers.vaccineHesitators /
+                                               toVaccinate.nativeWorkers.susceptible);
+                for (int i = 0; i < (int)hesitantVaccinations; i++)
+                {
+                    int rndNum = rnd.Next(1, 7); //Dice roll
+                    if (rndNum > 4 && toVaccinate.nativeWorkers.vaccineHesitators > 0 && toVaccinate.nativeWorkers.susceptible > 0)
+                    {
+                        toVaccinate.nativeWorkers.vaccineHesitators--;
+                        toVaccinate.nativeWorkers.vaccinated++;
+                        toVaccinate.nativeWorkers.susceptible--;
+                    }
+                    else
+                        refusedVaccinations++;
+                }
+
+                //Certain Acceptance
+                if ((toVaccinate.nativeWorkers.susceptible - toVaccinate.nativeWorkers.vaccineHesitators - toVaccinate.nativeWorkers.vaccineRefusers) - nonHesitant * nativeVaccinations < 0)
+                {
+                    toVaccinate.nativeWorkers.vaccinated += (toVaccinate.nativeWorkers.susceptible - toVaccinate.nativeWorkers.vaccineHesitators - toVaccinate.nativeWorkers.vaccineRefusers);
+                    toVaccinate.nativeWorkers.susceptible = Math.Max(0, toVaccinate.nativeWorkers.susceptible - (toVaccinate.nativeWorkers.susceptible - toVaccinate.nativeWorkers.vaccineHesitators - toVaccinate.nativeWorkers.vaccineRefusers));
+
+                }
+                else
+                {
+                    toVaccinate.nativeWorkers.vaccinated += nonHesitant * nativeVaccinations;
+                    toVaccinate.nativeWorkers.susceptible = Math.Max(0, toVaccinate.nativeWorkers.susceptible - nonHesitant * nativeVaccinations);
+                }
+
+            }
+            else
+                refusedVaccinations += nativeVaccinations;
+
+
+
+            //===============================\\
+            //=== Update commuting people ===\\
+            //===============================\\
+
+            foreach (PopulationCluster cluster in toVaccinate.outgoingCommuters.Select(e => e.Item1).ToList())
+            {
+                double clusterVaccinations = availableVaccinations * (cluster.total / toVaccinate.totalInhabitants);                    // Relative to susceptible ??? 
+                if (cluster.susceptible > 0)
+                {
+                    // percentage(needs to be calculated before vaccineHesitators is changed) of people not in hesitancy group
+                    double nonHesitantCluster = (cluster.susceptible - cluster.vaccineHesitators - cluster.vaccineRefusers) / cluster.susceptible;
+
+                    //Certain Refusal
+                    refusedVaccinations += clusterVaccinations * (cluster.vaccineRefusers / cluster.susceptible);                         //cluster refusal percentage
+
+                    //Hesitant people
+                    double hesitantVaccinationsCluster = clusterVaccinations * (cluster.vaccineHesitators / cluster.susceptible);
+                    for (int i = 0; i < (int)hesitantVaccinationsCluster; i++)
+                    {
+                            int rndNum = rnd.Next(1, 7); //Dice roll
+                            if (rndNum > 4 && cluster.vaccineHesitators > 0 && cluster.susceptible > 0)
+                            {
+                                cluster.vaccineHesitators--;
+                                cluster.vaccinated++;
+                                cluster.susceptible--;
+                            }
+                            else
+                                refusedVaccinations++;
+                    }
+
+                    //Certain Acceptance
+                    if ((cluster.susceptible - cluster.vaccineHesitators - cluster.vaccineRefusers) - nonHesitantCluster * clusterVaccinations < 0)
+                    {
+                        cluster.vaccinated += (cluster.susceptible - cluster.vaccineHesitators - cluster.vaccineRefusers);
+                        cluster.susceptible = Math.Max(0, cluster.susceptible - (cluster.susceptible - cluster.vaccineHesitators - cluster.vaccineRefusers));
+                    }
+                    else
+                    {
+                        cluster.vaccinated += nonHesitantCluster * clusterVaccinations;
+                        cluster.susceptible = Math.Max(0, cluster.susceptible - nonHesitantCluster * clusterVaccinations);
+                    }
+                }
+                else
+                    refusedVaccinations += clusterVaccinations;
+            }
+            return refusedVaccinations; //return the unused vaccinations
         }
 
 
-
-        
         public int ModelInhabitants()
         {
             int count = 0;
