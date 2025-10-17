@@ -14,6 +14,9 @@ namespace VaccineHesitancyModel
         public List<StatusPoint> pastStatuses = new List<StatusPoint>();
         public double highestInfections = 0;
         public double highestRecovered = 0;
+        public double highestDeltaI = 0;
+        public double usedHesitation = 0;
+        List<double> DeltaIList = new List<double>();
 
         public Simulation(List<Province> provinces)
         {
@@ -22,7 +25,8 @@ namespace VaccineHesitancyModel
 
         public void Progress(int generations, double VaccineHesitancy)
         {
-            double averageVaccineAvailability = 32877;  // 12million/365days
+            usedHesitation = VaccineHesitancy;
+            double averageVaccineAvailability = 32877;  // 2million/365days
             double totalVaccinationHesitancyRate = VaccineHesitancy / 100; // Total percentage of people doubting/refusing vaccinations
             double acceptanceRate = 0.5;                // 50% of hesitant are refusers
             double hesitantRate = 1 - acceptanceRate;   // 50% of hesitant are actually hesitant
@@ -39,6 +43,7 @@ namespace VaccineHesitancyModel
             {
                 refusedVaccinationsPrev = refusedVaccinations;
                 refusedVaccinations = 0;
+                DeltaIList = new List<double>();
 
                 foreach (Province province in provinces)
                 {               
@@ -54,6 +59,9 @@ namespace VaccineHesitancyModel
                     }
                     Update(province, province.nativeWorkers, incoming.Select(e => e.Item1).ToList());
                 }
+
+                double currentHighestDeltaI = DeltaIList.Sum() / DeltaIList.Count();
+                highestDeltaI = currentHighestDeltaI > highestDeltaI ? currentHighestDeltaI : highestDeltaI;
 
                 //Now run all vaccinations
                 //This will be done each day, when people are at home
@@ -82,13 +90,15 @@ namespace VaccineHesitancyModel
         //current province, native workers, at home workers/incoming commuters, vaccinations
         public void Update(Province prov, PopulationCluster native, List<PopulationCluster> present)
         {
-
+            
             //for each cluster, increase values with this percentage. If maxed out, cap it
             foreach (PopulationCluster cluster in present)
             {
                 double dS = 0.5 * -0.43 * prov.TotalInfected(present) * (cluster.susceptible / prov.TotalPresent(present));
                 double dR = 0.5 * 0.2 * cluster.infected;
                 double dI = -dS - dR;
+
+                DeltaIList.Add(dI);
 
                 cluster.vaccineRefusers = Math.Max(0, cluster.vaccineRefusers + dS * ( cluster.vaccineRefusers / cluster.susceptible));
                 cluster.vaccineHesitators = Math.Max(0, cluster.vaccineHesitators + dS * ( cluster.vaccineHesitators / cluster.susceptible));
@@ -102,6 +112,8 @@ namespace VaccineHesitancyModel
             double dS2 = 0.5 * -0.43 * prov.TotalInfected(present) * (native.susceptible / prov.TotalPresent(present));
             double dR2 = 0.5 * 0.2 * native.infected;
             double dI2 = -dS2 - dR2;
+
+            DeltaIList.Add(dI2);
 
             native.vaccineRefusers = Math.Max(0, native.vaccineRefusers + dS2 * (native.vaccineRefusers / native.susceptible));
             native.vaccineHesitators = Math.Max(0, native.vaccineHesitators + dS2 * (native.vaccineHesitators / native.susceptible));
@@ -314,6 +326,9 @@ namespace VaccineHesitancyModel
             generation = 0;
             provinces = ProvinceInit.CreateProvinces(); ;
             pastStatuses = new List<StatusPoint>();
+            highestRecovered = 0;
+            highestDeltaI = 0;
+            usedHesitation = 0;
             highestInfections = 0;
         }
     }
