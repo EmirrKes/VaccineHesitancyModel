@@ -30,7 +30,7 @@ namespace VaccineHesitancyModel
         internal void drawBaseModel(Simulation simulation)
         {
             // Holds your chart data
-            var model = new PlotModel { Title = "Baseline model. Hesitancy: " + simulation.usedHesitation };
+            var model = new PlotModel { Title = "Baseline model. Hesitancy: " + simulation.usedHesitation + '%'};
 
             // Create lines
             var susceptibleLine = new LineSeries
@@ -80,7 +80,7 @@ namespace VaccineHesitancyModel
             model.Legends.Add(new Legend()
             {
                 LegendTitle = "Legend",
-                LegendPosition = LegendPosition.TopRight,
+                LegendPosition = LegendPosition.RightMiddle,
             });
             plotView.Model = model;
         }
@@ -95,7 +95,7 @@ namespace VaccineHesitancyModel
             double hesitancyIncrement = 10;
             for (int i = 0; i < 5; i++)
             {
-                simulation.Progress(generations, hesitancyIncrement * (i + 1));
+                simulation.Progress(generations, hesitancyIncrement * (i + 1), VaccineSuccess: 10);
                 statusPoints.Add(simulation.pastStatuses);
                 simulation.Reset();
             }
@@ -108,7 +108,7 @@ namespace VaccineHesitancyModel
             {
                 var line = new LineSeries
                 {
-                    Title = "Hesitancy: " + hesitancyIncrement * (j + 1)
+                    Title = "Hesitancy: " + hesitancyIncrement * (j + 1) + '%'
                 };
 
                 foreach (StatusPoint sp in SP)
@@ -118,6 +118,15 @@ namespace VaccineHesitancyModel
 
                 j++;
             }
+
+            model.Axes.Add(new LinearAxis { Position = AxisPosition.Bottom, Title = "Generation" });
+            model.Axes.Add(new LinearAxis { Position = AxisPosition.Left, Title = "Individuals" });
+
+            model.Legends.Add(new Legend()
+            {
+                LegendTitle = "Legend",
+                LegendPosition = LegendPosition.TopRight,
+            });
 
             plotView.Model = model;
         }
@@ -131,24 +140,106 @@ namespace VaccineHesitancyModel
 
             List<double> highestDeltaIs = new List<double>();
 
-            for (int i = 0; i < 100 / hesitancyIncrement; i++)
+            for (int i = 0; i <= 100 / hesitancyIncrement; i++)
             {
-                simulation.Progress(generations, hesitancyIncrement * (i + 1));
+                simulation.Progress(generations, hesitancyIncrement * (i + 1), VaccineSuccess: 10);
                 highestDeltaIs.Add(simulation.highestDeltaI);
                 simulation.Reset();
             }
 
-            var model = new PlotModel { Title = "Infection rate based on hesitancy" };
+            var model = new PlotModel { Title = "Peak delta Infected based on hesitancy" };
 
             var line = new LineSeries
             {
-                Title = "Infection rating"
+                Title = "Rate of infection spread"
             };
 
-            for (int i = 0; i < highestDeltaIs.Count(); i++)
+            for (int i = 0; i < highestDeltaIs.Count() - 1; i++)
                 line.Points.Add(new DataPoint(hesitancyIncrement * (i + 1), highestDeltaIs[i]));
 
             model.Series.Add(line);
+
+            model.Axes.Add(new LinearAxis { Position = AxisPosition.Bottom, Title = "Hesitancy rate in %" });
+            model.Axes.Add(new LinearAxis { Position = AxisPosition.Left, Title = "Delta infected" });
+
+            Console.WriteLine(highestDeltaIs[0]);
+            Console.WriteLine(highestDeltaIs[highestDeltaIs.Count() - 1]);
+
+            plotView.Model = model;
+        }
+
+        internal void drawInfectionsGrowth(Simulation simulation)
+        {
+            simulation.Reset();
+
+            int generations = 100;
+            double hesitancyIncrement = 1;
+
+            List<double> highestInfections = new List<double>();
+
+            for (int i = 0; i <= 100 / hesitancyIncrement; i++)
+            {
+                simulation.Progress(generations, hesitancyIncrement * i, VaccineSuccess: 10);
+                highestInfections.Add(simulation.highestInfections);
+                simulation.Reset();
+            }
+
+            var model = new PlotModel { Title = "Peak simultaneous infections based on hesitancy" };
+
+            var line = new LineSeries
+            {
+                Title = "Peak simultaneous infected"
+            };
+
+            for (int i = 0; i < highestInfections.Count(); i++)
+                line.Points.Add(new DataPoint(hesitancyIncrement * i, highestInfections[i]));
+
+            model.Axes.Add(new LinearAxis { Position = AxisPosition.Bottom, Title = "Hesitancy rate in %" });
+            model.Axes.Add(new LinearAxis { Position = AxisPosition.Left, Title = "Infected individuals" });
+
+            model.Series.Add(line);
+
+            Console.WriteLine(highestInfections[0]);
+            Console.WriteLine(highestInfections[highestInfections.Count() - 1]);
+
+            plotView.Model = model;
+        }
+
+        internal void drawVaccineAcceptancy(Simulation simulation)
+        {
+            simulation.Reset();
+
+            int generations = 100;
+            double hesitancy = 40;
+            int increment = 5;
+
+            List<double> highestInfections = new List<double>();
+
+            for (int i = 0; i <= 50 / increment; i++)
+            {
+                simulation.Progress(generations, hesitancy, VaccineSuccess: 25 + increment * i);
+                highestInfections.Add(simulation.highestInfections);
+                simulation.Reset();
+            }
+
+            var model = new PlotModel { Title = "Peak simultaneous infections based on Vaccine acceptancy" };
+
+            var line = new LineSeries
+            {
+                Title = "Peak simultaneous infected"
+            };
+
+            for (int i = 0; i < highestInfections.Count(); i++)
+                line.Points.Add(new DataPoint(25 + increment * i, highestInfections[i]));
+
+            model.Axes.Add(new LinearAxis { Position = AxisPosition.Bottom, Title = "Vaccine acceptancy in %" });
+            model.Axes.Add(new LinearAxis { Position = AxisPosition.Left, Title = "Infected individuals" });
+
+            model.Series.Add(line);
+
+            Console.WriteLine(highestInfections[0]);
+            Console.WriteLine(highestInfections[highestInfections.Count() - 1]);
+
             plotView.Model = model;
         }
     }

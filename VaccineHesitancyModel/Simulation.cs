@@ -23,7 +23,7 @@ namespace VaccineHesitancyModel
             this.provinces = provinces;
         }
 
-        public void Progress(int generations, double VaccineHesitancy)
+        public void Progress(int generations, double VaccineHesitancy, int VaccineSuccess)
         {
             usedHesitation = VaccineHesitancy;
             double averageVaccineAvailability = 32877;  // 2million/365days
@@ -69,7 +69,7 @@ namespace VaccineHesitancyModel
                 {
                     double people = ModelInhabitants();
                     double totalPrc = province.totalInhabitants / people;
-                    refusedVaccinations += Vaccinate(province, (averageVaccineAvailability) * totalPrc); //maybe use fraction of susceptible ?? All refused vaccinations added: + refusedVaccinationsPrev
+                    refusedVaccinations += Vaccinate(province, (averageVaccineAvailability) * totalPrc, VaccineSuccess); //maybe use fraction of susceptible ?? All refused vaccinations added: + refusedVaccinationsPrev
                 }
 
                 //GRAPHS
@@ -140,7 +140,7 @@ namespace VaccineHesitancyModel
             }
         }
 
-        public double Vaccinate(Province toVaccinate, double availableVaccinations)
+        public double Vaccinate(Province toVaccinate, double availableVaccinations, int VaccineSuccess)
         {
             /* This function vaccinates an entire province(city) with given vaccination(hesitancy) rates.
              * To properly update this, hesitant and refusal people need to be updated proportionally.
@@ -173,8 +173,8 @@ namespace VaccineHesitancyModel
                                                toVaccinate.nativeWorkers.susceptible);
                 for (int i = 0; i < (int)hesitantVaccinations; i++)
                 {
-                    int rndNum = rnd.Next(1, 11); //Dice roll
-                    if (rndNum >= 10 && toVaccinate.nativeWorkers.vaccineHesitators > 0 && toVaccinate.nativeWorkers.susceptible > 0)
+                    int rndNum = rnd.Next(1, 101); //Dice roll
+                    if (rndNum > 100 - VaccineSuccess && toVaccinate.nativeWorkers.vaccineHesitators > 0 && toVaccinate.nativeWorkers.susceptible > 0)
                     {
                         toVaccinate.nativeWorkers.vaccineHesitators--;
                         toVaccinate.nativeWorkers.vaccinated++;
