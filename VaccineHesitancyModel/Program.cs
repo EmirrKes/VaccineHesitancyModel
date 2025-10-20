@@ -43,8 +43,8 @@ namespace VaccineHesitancyModel
                                 //form.drawBaseModel(simulation);
                                 //form.drawInfectedModel(simulation);
                                 //form.drawDeltaI(simulation);
-                                //form.drawInfectionsGrowth(simulation);
-                                form.drawVaccineAcceptancy(simulation);
+                                form.drawInfectionsGrowth(simulation);
+                                //form.drawVaccineAcceptancy(simulation);
                             }                   
                             else Console.WriteLine("Missing generation number");
                             break;

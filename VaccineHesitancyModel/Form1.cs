@@ -92,8 +92,8 @@ namespace VaccineHesitancyModel
             List<List<StatusPoint>> statusPoints = new List<List<StatusPoint>>();
 
             int generations = 100;
-            double hesitancyIncrement = 10;
-            for (int i = 0; i < 5; i++)
+            double hesitancyIncrement = 25;
+            for (int i = 0; i < 4; i++)
             {
                 simulation.Progress(generations, hesitancyIncrement * (i + 1), VaccineSuccess: 10);
                 statusPoints.Add(simulation.pastStatuses);
