@@ -39,13 +39,15 @@ namespace VaccineHesitancyModel
                             break;
                         case "p":  if  (inputs.Count() >= 3)
                             {
-                                //simulation.Progress(Convert.ToInt32(inputs[1]), Convert.ToDouble(inputs[2]), VaccineSuccess: 10, 2.14);
-                                //form.drawBaseModel(simulation);
+
+                                //----- Display the graph corresponding to the uncommented line -----\\
+
+                                form.drawBaseModel(simulation, Convert.ToInt32(inputs[1]), Convert.ToDouble(inputs[2]));
                                 //form.drawInfectedModel(simulation);
                                 //form.drawDeltaI(simulation);
                                 //form.drawInfectionsGrowth(simulation);
                                 //form.drawVaccineAcceptancy(simulation);
-                                form.Test(simulation);
+                                //form.RvaluesComparison(simulation);
                             }                   
                             else Console.WriteLine("Missing generation number");
                             break;

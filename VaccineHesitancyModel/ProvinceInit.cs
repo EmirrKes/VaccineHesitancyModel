@@ -182,8 +182,8 @@ namespace VaccineHesitancyModel
             Limburg.AddCommuters(new PopulationCluster(200, 0, 0, 0), Zeeland);
             Limburg.AddCommuters(new PopulationCluster(43000, 0, 0, 0), NorthBrabant);
 
-            NorthHolland.nativeWorkers.infected = 100;
-            NorthHolland.nativeWorkers.susceptible -= 100;
+            NorthHolland.nativeWorkers.infected = 10;
+            NorthHolland.nativeWorkers.susceptible -= 10;
 
             return new List<Province> { Groningen, Friesland, Drenthe, Overijssel, Gelderland, Utrecht, NorthHolland, SouthHolland, Zeeland, NorthBrabant, Limburg, Flevoland };
         }

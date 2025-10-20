@@ -3,6 +3,7 @@ using OxyPlot.Axes;
 using OxyPlot.Legends;
 using OxyPlot.Series;
 using OxyPlot.WindowsForms;
+using System.Runtime.InteropServices;
 using System.Security.Cryptography.X509Certificates;
 
 namespace VaccineHesitancyModel
@@ -27,8 +28,10 @@ namespace VaccineHesitancyModel
   
         }
 
-        internal void drawBaseModel(Simulation simulation)
+        internal void drawBaseModel(Simulation simulation, int generations, double hesitancyRate)
         {
+            simulation.Progress(generations, hesitancyRate, VaccineSuccess: 10, Rrate: 2.14);
+
             // Holds your chart data
             var model = new PlotModel { Title = "Baseline model. Hesitancy: " + simulation.usedHesitation + '%'};
 
@@ -121,7 +124,7 @@ namespace VaccineHesitancyModel
                 j++;
             }
 
-            model.Axes.Add(new LinearAxis {Position = AxisPosition.Bottom, Title = "Generation", TitleFontSize = 16, FontSize = 14, MajorStep = 25, MinorStep = 5 });
+            model.Axes.Add(new LinearAxis {Position = AxisPosition.Bottom, Title = "Generation", TitleFontSize = 16, FontSize = 14});
             model.Axes.Add(new LinearAxis {Position = AxisPosition.Left, Title = "Individuals", TitleFontSize = 16, FontSize = 14 });
 
             model.Legends.Add(new Legend()
@@ -259,7 +262,7 @@ namespace VaccineHesitancyModel
             plotView.Model = model;
         }
 
-        internal void Test(Simulation simulation)
+        internal void RvaluesComparison(Simulation simulation)
         {
             simulation.Reset();
 
@@ -282,7 +285,7 @@ namespace VaccineHesitancyModel
 
             }
 
-            var model = new PlotModel { Title = "Difference in Total Infected based on R value in 0% - 22.4% hesitancy" };
+            var model = new PlotModel { Title = "Impact of 22.4% hesitancy rate across different reproduction rates" };
 
             var line = new LineSeries
             {
@@ -295,11 +298,11 @@ namespace VaccineHesitancyModel
                 line.Points.Add(new DataPoint(RValue, ((Recovered[i] - Recovered0Hes[i]) / Recovered0Hes[i]) * 100));
             }
 
-            model.Axes.Add(new LinearAxis { Position = AxisPosition.Bottom, Title = "R value" });
-            model.Axes.Add(new LinearAxis { Position = AxisPosition.Left, Title = "% difference in infected" });
+            model.Axes.Add(new LinearAxis { Position = AxisPosition.Bottom, Title = "Reproduction rate", TitleFontSize = 16, FontSize = 14 });
+            model.Axes.Add(new LinearAxis { Position = AxisPosition.Left, Title = "\u0394 " + "infected(%)", TitleFontSize = 16, FontSize = 14 });
 
             model.Series.Add(line);
-
+            
             Console.WriteLine(Recovered.First());
             Console.WriteLine(Recovered.Last());
 
