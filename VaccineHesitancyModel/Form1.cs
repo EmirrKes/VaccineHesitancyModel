@@ -74,13 +74,15 @@ namespace VaccineHesitancyModel
             model.Series.Add(recoveredLine);
             model.Series.Add(vaccinatedLine);
 
-            model.Axes.Add(new LinearAxis { Position = AxisPosition.Bottom, Title = "Generation" });
-            model.Axes.Add(new LinearAxis { Position = AxisPosition.Left, Title = "Individuals" });
+            model.Axes.Add(new LinearAxis {Position = AxisPosition.Bottom, Title = "Generation", TitleFontSize = 16, FontSize = 14 });
+            model.Axes.Add(new LinearAxis {Position = AxisPosition.Left, Title = "Individuals", TitleFontSize = 16, FontSize = 14 });
 
             model.Legends.Add(new Legend()
             {
                 LegendTitle = "Legend",
                 LegendPosition = LegendPosition.RightMiddle,
+                LegendTitleFontSize = 16,
+                LegendFontSize = 16
             });
             plotView.Model = model;
         }
@@ -119,13 +121,15 @@ namespace VaccineHesitancyModel
                 j++;
             }
 
-            model.Axes.Add(new LinearAxis { Position = AxisPosition.Bottom, Title = "Generation" });
-            model.Axes.Add(new LinearAxis { Position = AxisPosition.Left, Title = "Individuals" });
+            model.Axes.Add(new LinearAxis {Position = AxisPosition.Bottom, Title = "Generation", TitleFontSize = 16, FontSize = 14, MajorStep = 25, MinorStep = 5 });
+            model.Axes.Add(new LinearAxis {Position = AxisPosition.Left, Title = "Individuals", TitleFontSize = 16, FontSize = 14 });
 
             model.Legends.Add(new Legend()
             {
                 LegendTitle = "Legend",
                 LegendPosition = LegendPosition.TopRight,
+                LegendTitleFontSize = 16,
+                LegendFontSize = 16,
             });
 
             plotView.Model = model;
@@ -159,8 +163,8 @@ namespace VaccineHesitancyModel
 
             model.Series.Add(line);
 
-            model.Axes.Add(new LinearAxis { Position = AxisPosition.Bottom, Title = "Hesitancy rate in %" });
-            model.Axes.Add(new LinearAxis { Position = AxisPosition.Left, Title = "Delta infected" });
+            model.Axes.Add(new LinearAxis { Position = AxisPosition.Bottom, Title = "Hesitancy rate in %", TitleFontSize = 16, FontSize = 14 });
+            model.Axes.Add(new LinearAxis { Position = AxisPosition.Left, Title = "Delta infected", TitleFontSize = 16, FontSize = 14 });
 
             Console.WriteLine(highestDeltaIs[0]);
             Console.WriteLine(highestDeltaIs[highestDeltaIs.Count() - 1]);
@@ -194,8 +198,20 @@ namespace VaccineHesitancyModel
             for (int i = 0; i < highestInfections.Count(); i++)
                 line.Points.Add(new DataPoint(hesitancyIncrement * i, highestInfections[i]));
 
-            model.Axes.Add(new LinearAxis { Position = AxisPosition.Bottom, Title = "Hesitancy rate in %" });
-            model.Axes.Add(new LinearAxis { Position = AxisPosition.Left, Title = "Infected individuals" });
+            model.Axes.Add(new LinearAxis
+            {
+                Position = AxisPosition.Bottom,
+                Title = "Hesitancy rate in %",
+                TitleFontSize = 16,
+                FontSize = 14
+            });
+            model.Axes.Add(new LinearAxis
+            {
+                Position = AxisPosition.Left,
+                Title = "Infected individuals",
+                TitleFontSize = 16,
+                FontSize = 14
+            });
 
             model.Series.Add(line);
 
@@ -232,8 +248,8 @@ namespace VaccineHesitancyModel
             for (int i = 0; i < highestInfections.Count(); i++)
                 line.Points.Add(new DataPoint(25 + increment * i, highestInfections[i]));
 
-            model.Axes.Add(new LinearAxis { Position = AxisPosition.Bottom, Title = "Vaccine acceptancy in %" });
-            model.Axes.Add(new LinearAxis { Position = AxisPosition.Left, Title = "Infected individuals" });
+            model.Axes.Add(new LinearAxis {Position = AxisPosition.Bottom, Title = "Vaccine acceptancy in %", TitleFontSize = 16, FontSize = 14 });
+            model.Axes.Add(new LinearAxis {Position = AxisPosition.Left, Title = "Infected individuals", TitleFontSize = 16, FontSize = 14 });
 
             model.Series.Add(line);
 

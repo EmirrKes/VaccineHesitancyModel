@@ -140,7 +140,7 @@ namespace VaccineHesitancyModel
             }
         }
 
-        public double Vaccinate(Province toVaccinate, double availableVaccinations, int VaccineSuccess)
+        public double Vaccinate(Province toVaccinate, double availableVaccinations, int VaccineSuccess)         
         {
             /* This function vaccinates an entire province(city) with given vaccination(hesitancy) rates.
              * To properly update this, hesitant and refusal people need to be updated proportionally.
@@ -151,7 +151,7 @@ namespace VaccineHesitancyModel
 
             //================================\\
             //=== Update the NativeWorkers ===\\
-            //================================\\
+            //================================\\                            
 
             double nativeVaccinations = availableVaccinations * (toVaccinate.nativeWorkers.total / toVaccinate.totalInhabitants);   //Maybe relative to susceptible??
 
