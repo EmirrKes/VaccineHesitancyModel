@@ -95,7 +95,7 @@ namespace VaccineHesitancyModel
             double hesitancyIncrement = 25;
             for (int i = 0; i < 4; i++)
             {
-                simulation.Progress(generations, hesitancyIncrement * (i + 1), VaccineSuccess: 10);
+                simulation.Progress(generations, hesitancyIncrement * (i + 1), VaccineSuccess: 10, 2.14);
                 statusPoints.Add(simulation.pastStatuses);
                 simulation.Reset();
             }
@@ -142,7 +142,7 @@ namespace VaccineHesitancyModel
 
             for (int i = 0; i <= 100 / hesitancyIncrement; i++)
             {
-                simulation.Progress(generations, hesitancyIncrement * (i + 1), VaccineSuccess: 10);
+                simulation.Progress(generations, hesitancyIncrement * (i + 1), VaccineSuccess: 10, 2.14);
                 highestDeltaIs.Add(simulation.highestDeltaI);
                 simulation.Reset();
             }
@@ -179,7 +179,7 @@ namespace VaccineHesitancyModel
 
             for (int i = 0; i <= 100 / hesitancyIncrement; i++)
             {
-                simulation.Progress(generations, hesitancyIncrement * i, VaccineSuccess: 10);
+                simulation.Progress(generations, hesitancyIncrement * i, VaccineSuccess: 10, 2.14);
                 highestInfections.Add(simulation.highestInfections);
                 simulation.Reset();
             }
@@ -217,7 +217,7 @@ namespace VaccineHesitancyModel
 
             for (int i = 0; i <= 50 / increment; i++)
             {
-                simulation.Progress(generations, hesitancy, VaccineSuccess: 25 + increment * i);
+                simulation.Progress(generations, hesitancy, VaccineSuccess: 25 + increment * i, 2.14);
                 highestInfections.Add(simulation.highestInfections);
                 simulation.Reset();
             }
@@ -242,5 +242,56 @@ namespace VaccineHesitancyModel
 
             plotView.Model = model;
         }
+
+        internal void Test(Simulation simulation)
+        {
+            simulation.Reset();
+
+            int generations = 400;
+            double RIncrement = 0.01;
+
+            List<double> Recovered = new List<double>();
+            List<double> Recovered0Hes = new List<double>();
+
+            for (int i = 0; i <= (2.14 - 1.25) / RIncrement; i++)
+            {
+                simulation.Progress(generations, 22, VaccineSuccess: 10, 1.25 * (1+ RIncrement *i));
+
+                Recovered.Add(simulation.ModelRecovered());
+                simulation.Reset();
+
+                simulation.Progress(generations, 0, VaccineSuccess: 10, 1.25 * (1 + RIncrement * i));
+                Recovered0Hes.Add(simulation.ModelRecovered());
+                simulation.Reset();
+
+            }
+
+            var model = new PlotModel { Title = "Difference in Total Infected based on R value in 0% - 22.4% hesitancy" };
+
+            var line = new LineSeries
+            {
+                Title = "% difference in infected"
+            };
+
+            for (int i = 0; i < Recovered.Count; i++)
+            {
+                double RValue = 1.25 * (1 + RIncrement * i);
+                line.Points.Add(new DataPoint(RValue, ((Recovered[i] - Recovered0Hes[i]) / Recovered0Hes[i]) * 100));
+            }
+
+            model.Axes.Add(new LinearAxis { Position = AxisPosition.Bottom, Title = "R value" });
+            model.Axes.Add(new LinearAxis { Position = AxisPosition.Left, Title = "% difference in infected" });
+
+            model.Series.Add(line);
+
+            Console.WriteLine(Recovered.First());
+            Console.WriteLine(Recovered.Last());
+
+            plotView.Model = model;
+
+
+        }
+
+
     }
 }
