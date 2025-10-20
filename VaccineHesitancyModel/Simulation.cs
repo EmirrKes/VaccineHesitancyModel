@@ -23,7 +23,7 @@ namespace VaccineHesitancyModel
             this.provinces = provinces;
         }
 
-        public void Progress(int generations, double VaccineHesitancy, int VaccineSuccess)
+        public void Progress(int generations, double VaccineHesitancy, int VaccineSuccess, double Rrate)
         {
             usedHesitation = VaccineHesitancy;
             double averageVaccineAvailability = 32877;  // 2million/365days
@@ -48,7 +48,7 @@ namespace VaccineHesitancyModel
                 foreach (Province province in provinces)
                 {               
                     //At home
-                    Update(province, province.nativeWorkers, province.outgoingCommuters.Select(e => e.Item1).ToList());
+                    Update(province, province.nativeWorkers, province.outgoingCommuters.Select(e => e.Item1).ToList(), Rrate);
 
                     //At work
                     List<(PopulationCluster, Province)> incoming = [];
@@ -57,7 +57,7 @@ namespace VaccineHesitancyModel
                         if (province2.id != province.id)
                             incoming.Add(province2.outgoingCommuters.Find(e => e.Item2 == province));
                     }
-                    Update(province, province.nativeWorkers, incoming.Select(e => e.Item1).ToList());
+                    Update(province, province.nativeWorkers, incoming.Select(e => e.Item1).ToList(), Rrate);
                 }
 
                 double currentHighestDeltaI = DeltaIList.Sum() / DeltaIList.Count();
@@ -88,17 +88,18 @@ namespace VaccineHesitancyModel
 
         //Given the provinces NativeWorkers and the commuters(incoming or at home)
         //current province, native workers, at home workers/incoming commuters, vaccinations
-        public void Update(Province prov, PopulationCluster native, List<PopulationCluster> present)
+        public void Update(Province prov, PopulationCluster native, List<PopulationCluster> present, double Rrate)
         {
-            
+            List<double> temp = [];
             //for each cluster, increase values with this percentage. If maxed out, cap it
             foreach (PopulationCluster cluster in present)
             {
-                double dS = 0.5 * -0.43 * prov.TotalInfected(present) * (cluster.susceptible / prov.TotalPresent(present));
+                double dS = 0.5 * -(0.2 * Rrate) * prov.TotalInfected(present) * (cluster.susceptible / prov.TotalPresent(present));
                 double dR = 0.5 * 0.2 * cluster.infected;
                 double dI = -dS - dR;
 
-                DeltaIList.Add(dI);
+                temp.Add(dI);
+                //DeltaIList.Add(dI);
 
                 cluster.vaccineRefusers = Math.Max(0, cluster.vaccineRefusers + dS * ( cluster.vaccineRefusers / cluster.susceptible));
                 cluster.vaccineHesitators = Math.Max(0, cluster.vaccineHesitators + dS * ( cluster.vaccineHesitators / cluster.susceptible));
@@ -109,11 +110,13 @@ namespace VaccineHesitancyModel
             }
 
             //Also for native population
-            double dS2 = 0.5 * -0.43 * prov.TotalInfected(present) * (native.susceptible / prov.TotalPresent(present));
+            double dS2 = 0.5 * -(0.2 * Rrate) * prov.TotalInfected(present) * (native.susceptible / prov.TotalPresent(present));
             double dR2 = 0.5 * 0.2 * native.infected;
             double dI2 = -dS2 - dR2;
 
-            DeltaIList.Add(dI2);
+            temp.Add(dI2);
+            //DeltaIList.Add(dI2);
+            DeltaIList.Add(temp.Sum());
 
             native.vaccineRefusers = Math.Max(0, native.vaccineRefusers + dS2 * (native.vaccineRefusers / native.susceptible));
             native.vaccineHesitators = Math.Max(0, native.vaccineHesitators + dS2 * (native.vaccineHesitators / native.susceptible));
